@@ -10,8 +10,8 @@
 
 ในจำนวนนั้น ๔ โฟลเดอร์คือมอดูลที่จำเป็นต้องใช้ซึ่งยืมมาใช้เพื่อเป็นส่วนประกอบในโปรแกรม ไม่ได้เป็นส่วนที่เขียนขึ้นเองแต่อย่างใด ได้แก่
 - pymeshio สำหรับเปิดอ่านข้อมูลจากไฟล์ .pmd และ .pmx
-- pykakasi สำหรับแปลงภาษาญี่ปุ่นเป็นโรมาจิ (รายละเอียด http://phyblas.blog.jp/20170124.html)
-- jctconv สำหรับแปลงอังอักษรญี่ปุ่นครึ่งตัวเป็นเต็มตัว (รายละเอียด http://phyblas.blog.jp/20170202.html)
+- pykakasi สำหรับแปลงภาษาญี่ปุ่นเป็นโรมาจิ ([รายละเอียด](http://phyblas.blog.jp/20170124.html))
+- jctconv สำหรับแปลงอังอักษรญี่ปุ่นครึ่งตัวเป็นเต็มตัว ([รายละเอียด](http://phyblas.blog.jp/20170202.html))
 - pkg_resources ถูกเรียกใช้โดย pykakasi
 
 ส่วนโฟลเดอร์ mmdpaimaya คือส่วนของโค้ดที่เขียนขึ้นมาเองจริงๆ
@@ -192,5 +192,5 @@ natang_sang = natang.roem()
 
 ## ขอขอบคุณ
 โค้ดโปรแกรมนี้ถูกเขียนโดยได้แรงบันดาลใจและแนวคิดมาจาก
-PmxIO ของคุณ Yomogi http://mayatech.blog.jp/archives/3009881.html
-และ mmd-transporter ของคุณ GRGSIBERIA http://www.nicovideo.jp/watch/sm23644737
+[PmxIO ของคุณ Yomogi](http://mayatech.blog.jp/archives/3009881.html)
+และ [mmd-transporter ของคุณ GRGSIBERIA](http://www.nicovideo.jp/watch/sm23644737)
