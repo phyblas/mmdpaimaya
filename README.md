@@ -47,7 +47,7 @@ natang_sang = natang.roem()
 
 หากโค้ดใช้งานได้ไม่มีปัญหาอะไรก็จะมีหน้าต่างขึ้นมาดังนี้
 
-!(http://i271.photobucket.com/albums/jj153/phyblas/yami/2017/d01.jpg)
+![](http://i271.photobucket.com/albums/jj153/phyblas/yami/2017/d01.jpg)
 
 เมื่อเริ่มหน้าต่างโปรแกรมขึ้นมาจะเห็นว่ามีช่องให้เลือกไฟล์อยู่ด้านบนสุด และมีอะไรให้เลือกปรับแต่งหลายอย่าง
 
