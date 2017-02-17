@@ -66,9 +66,9 @@ natang_sang = natang.roem()
 
 เทียบขนาด 8x|1x|0.08x
 
-<d02>
+![](http://i271.photobucket.com/albums/jj153/phyblas/yami/2017/d02.jpg)
 
-(Tda式初音ミク デフォ服ver https://bowlroll.net/file/16344)
+([Tda式初音ミク デフォ服ver](https://bowlroll.net/file/16344))
 
 โมเดลที่มีการสร้างกระดูกไว้จะปรับขนาดภายหลังได้ลำบาก ดังนั้นควรเลือกขนาดให้ถูกต้องตั้งแต่แรก
 
@@ -99,18 +99,18 @@ natang_sang = natang.roem()
 > Animation Editor (アニメーション エディタ)
 > Blend Shape (ブレンド シェイプ)
 
-<d03>
+![](http://i271.photobucket.com/albums/jj153/phyblas/yami/2017/d03.jpg)
 
-(ゆきはね式ミク　イージスβ2 https://bowlroll.net/file/12207)
+([ゆきはね式ミク　イージスβ2](https://bowlroll.net/file/12207))
 
 
 
 ## สร้างกระดูกและ IK
 สำหรับโมเดลที่เป็นตัวละครจำเป็นจะต้องมีกระดูกเพื่อใช้ในการเคลื่อนไหวร่างกาย
 
-<d04>
+![](http://i271.photobucket.com/albums/jj153/phyblas/yami/2017/d04.jpg)
 
-(Racing Miku 2015 http://digitrevx.deviantart.com/art/Princess-Knight-Racing-Miku-2015-MMD-530215264)
+([Racing Miku 2015](http://digitrevx.deviantart.com/art/Princess-Knight-Racing-Miku-2015-MMD-530215264))
 
 กระดูกทั้งหมดจะถูกสร้างตามข้อมูลของกระดูกทั้งหมดที่มีในโมเดล แม้แต่กระดูกที่ไม่สามารถควบคุมได้โดยตรงตอนอยู่ในโปรแกรม MMD ด้วย เช่นพวกเส้นผมและกระโปรง
 
@@ -127,9 +127,9 @@ natang_sang = natang.roem()
 ## ใส่สีผิว
 ตัวเลือกใส่สีผิวถ้าเลือกว่าใส่ก็จะดึงข้อมูลวัสดุของโมเดลมาใช้ แต่ถ้าเลือกไม่ใส่ก็จะใส่สีมาตรฐานให้ทั้งตัว ดูแล้วอาจคล้ายรูปปั้นหิน
 
-<d05>
+![](http://i271.photobucket.com/albums/jj153/phyblas/yami/2017/d05.jpg)
 
-(Animasa X Pikadude 初音ミク http://seiga.nicovideo.jp/seiga/im4222520)
+([Animasa X Pikadude 初音ミク](http://seiga.nicovideo.jp/seiga/im4222520))
 
 อนึ่ง หากเลือกว่าจะแยกโพลิกอนตามวัสดุ สีผิวจะถูกบังคับใส่โดยอัตโนมัติ เพราะถ้าไม่ใส่วัสดุก็ไม่มีทางแยกโพลิกอนตามวัสดุได้อยู่แล้ว
 
@@ -148,9 +148,9 @@ natang_sang = natang.roem()
 
 ตัวอย่าง เช่นโมเดลอันนี้ เทียบภาพระหว่างทำอัลฟาแม็ปกับไม่ได้ทำ
 
-<d06>
+![](http://i271.photobucket.com/albums/jj153/phyblas/yami/2017/d06.jpg)
 
-(初音オミク２回目修正版 https://bowlroll.net/file/18038)
+([初音オミク２回目修正版](https://bowlroll.net/file/18038))
 
 แต่ก็มีโมเดลบางตัวที่ทำอัลฟาแม็ปเฉพาะวัสดุบางอัน ทำให้ต้องมาดูแล้วคัดเอาเองว่าวัสดุไหนควรทำ
 
@@ -158,9 +158,9 @@ natang_sang = natang.roem()
 
 โปรแกรมนี้ได้ทำระบบเพื่อให้สะดวกในการคัดกรองว่าวัสดุไหนควรจะใส่อัลฟาแม็ป โดยเมื่อนำเข้าโมเดลขึ้นมาเสร็จจะมีขึ้นหน้าต่างให้ติ๊กเลือก
 
-<d07>
+![](http://i271.photobucket.com/albums/jj153/phyblas/yami/2017/d07.jpg)
 
-(มิกุ TDA ในชุดจีนโดย kooooi http://kooooi.deviantart.com/gallery/)
+([มิกุ TDA ในชุดจีนโดย kooooi](http://kooooi.deviantart.com/gallery/))
 
 เมื่อติ๊กเครื่องหมายถูกออกอัลฟาแม็ปก็จะถูกเอาออกทันที สามารถสังเกตเห็นความเปลี่ยนแปลงได้ทันที ถ้ารู้สึกว่าเอาออกแล้วแปลกก็ติ๊กใหม่ อัลฟาแม็ปจะกลับมา
 
