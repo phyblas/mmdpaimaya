@@ -1,8 +1,0 @@
-ชื่อไฟล์ = /Users/patn/Dropbox/daenmaya/mmd/Tda式デフォ服ミク_ver1.1/Tda式初音ミク_デフォ服ver.pmx
-ขนาด = 0.08
-แยกโพลิกอนตามวัสดุ = 0
-สร้าง blend shape = 0
-สร้างกระดูก = 0
-สร้าง IK = 0
-ใส่สีผิว = 1
-สร้าง alpha map = 1

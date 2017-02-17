@@ -1,5 +1,0 @@
----- /Volumes/夏鳥/watari/MikuMikuDance_v926/UserFile/Model/kooooi/TDA Miku China Dress Ver1.5/TDA Miku China Dress Ver1.5a.pmx
->eye_hi::eye_hi2::cheek::hairshadow::megane::kagamihen
-
----- /Users/patn/Dropbox/daenmaya/mmd/Tda式デフォ服ミク_ver1.1/Tda式初音ミク_デフォ服ver.pmx
->eye_hi::eye_hi2::hairshadow::lens::hikaru1::Other::hikaru
