@@ -203,3 +203,9 @@ natang_sang = natang.roem()
 โค้ดโปรแกรมนี้ถูกเขียนโดยได้แรงบันดาลใจและแนวคิดมาจาก
 [PmxIO ของคุณ Yomogi](http://mayatech.blog.jp/archives/3009881.html)
 และ [mmd-transporter ของคุณ GRGSIBERIA](http://www.nicovideo.jp/watch/sm23644737)
+
+
+## ตัวอย่างงานที่ใช้โมเดล MMD ในมายา
+- https://www.youtube.com/watch?v=7iixZmr8rAo
+- http://phyblas.blog.jp/20170217.html
+
