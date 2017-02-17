@@ -95,9 +95,9 @@ natang_sang = natang.roem()
 กรณีโมเดลมีมอร์ฟที่ไม่สามารถแปลงได้จะมีข้อความเตือนขึ้นมาเพื่อให้รู้
 
 สามารถดูและควบคุมเบลนด์เชปได้ใน
-> Windows (ウィンドウ)
-> Animation Editor (アニメーション エディタ)
-> Blend Shape (ブレンド シェイプ)
+\> Windows (ウィンドウ)
+\> Animation Editor (アニメーション エディタ)
+\> Blend Shape (ブレンド シェイプ)
 
 ![](http://i271.photobucket.com/albums/jj153/phyblas/yami/2017/d03.jpg)
 
