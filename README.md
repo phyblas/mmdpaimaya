@@ -111,6 +111,8 @@ natang_sang = natang.roem()
 \> Animation Editor (アニメーション エディタ)
 \> Blend Shape (ブレンド シェイプ)
 
+ตัวอย่าง ปรับปากและตากับคิ้วให้มิกุยิ้มได้
+
 ![](http://i271.photobucket.com/albums/jj153/phyblas/yami/2017/d03.jpg)
 
 ([ゆきはね式ミク　イージスβ2](https://bowlroll.net/file/12207))
@@ -186,7 +188,7 @@ natang_sang = natang.roem()
 
 แต่หากแก้แล้วมีข้อผิดพลาดอะไรจนทำให้การอ่านไฟล์เกิดขัดข้องขึ้นมามันจะทำลายตัวเองแล้วสร้างขึ้นใหม่ ข้อมูลการเลือกที่เคยบันทึกไว้ก็หายหมด
 
-ในอนาคตหากมีเวลาปรับปรุงโปรแกรมเพิ่มเติมและคิดวิธีที่ดีกว่าได้ก็คงจะตัดส่วนนี้ทิ้งไป เพราะดูวุ่นวายอยู่
+ในอนาคตหากมีเวลาปรับปรุงโปรแกรมเพิ่มเติมและคิดวิธีที่ดีกว่าได้ก็คงจะตัดส่วนนี้ทิ้งไป
 
 
 
@@ -211,11 +213,16 @@ natang_sang = natang.roem()
 
 ## ขอขอบคุณ
 โค้ดโปรแกรมนี้ถูกเขียนโดยได้แรงบันดาลใจและแนวคิดมาจาก
-[PmxIO ของคุณ Yomogi](http://mayatech.blog.jp/archives/3009881.html)
-และ [mmd-transporter ของคุณ GRGSIBERIA](http://www.nicovideo.jp/watch/sm23644737)
+- [PmxIO ของคุณ Yomogi](http://mayatech.blog.jp/archives/3009881.html)
+- [mmd-transporter ของคุณ GRGSIBERIA](http://www.nicovideo.jp/watch/sm23644737)
+
 
 
 ## ตัวอย่างงานที่ใช้โมเดล MMD ในมายา
 - https://www.youtube.com/watch?v=7iixZmr8rAo
 - http://phyblas.blog.jp/20170217.html
 
+
+
+## ติดต่อสอบถาม
+หากมีปัญหาสงสัยถามได้ในเพจที่ facebook https://www.facebook.com/ikamiso
