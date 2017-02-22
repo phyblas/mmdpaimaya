@@ -29,8 +29,11 @@ def romaji(x):
     x = zenhan(x,kana=0,digit=1,ascii=1)
     x = kakasi(x)
     x = re.sub(r'(\S)-',r'\1\1',x)
-    if(x[0] in '0123456789'):
-        x = kazu[int(x[0])]+x[1:]
+    try:
+        if(x[0] in '0123456789'):
+            x = kazu[int(x[0])]+x[1:]
+    except:
+        x = 'jianx'
     return re.sub(r'\W','_',x)
 
 # คำนวณค่าครอสเว็กเตอร์
