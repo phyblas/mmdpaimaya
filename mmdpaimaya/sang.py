@@ -88,12 +88,11 @@ def sang_poly(chue_tem_file,mmddata,khanat=0.08,ao_alpha_map=1,yaek_poly=0,ao_si
     
     for i,tex in enumerate(mmddata.textures):
         path_tem_tex = os.path.join(path_file,tex) # ไฟล์เท็กซ์เจอร์ เพิ่มพาธของไฟล์โมเดลลงไป
-        chue_tex = os.path.splitext(os.path.basename(tex.split('\\')[-1]))[0]
+        chue_tex = tex.replace('\\','_').replace('/','_').replace('.','_')
         chue_tex = romaji(chue_tex) # เปลี่ยนชื่อเป็นโรมาจิ
         
-        # ถ้ามีโหนดไฟล์นี้อยู่แล้วก็ไม่ต้องสร้างใหม่
-        chue_node_file = chue_tex+'_file_'+chue_model+'_%d'%os.stat(chue_tem_file).st_mtime
-        if(not mc.objExists(chue_node_file) and i in set_index_tex):
+        chue_node_file = chue_tex+'_file_'+chue_model#+'_%d'%os.stat(chue_tem_file).st_mtime
+        if(i in set_index_tex):#if(not mc.objExists(chue_node_file) and i in set_index_tex):
             # สร้างโหนดไฟล์เท็กซ์เจอร์
             chue_node_file = mc.shadingNode('file',at=1,n=chue_node_file)
             # สร้างโหนด placed2d
@@ -143,9 +142,8 @@ def sang_poly(chue_tem_file,mmddata,khanat=0.08,ao_alpha_map=1,yaek_poly=0,ao_si
         # ตั้งชื่อให้เป็นโรมาจิ
         chue_mat = romaji(chuedidi(mat.name,u'watsadu%d'%i))
         
-        chue_node_mat = chue_mat+'_mat_'+chue_model+'_%d'%os.stat(chue_tem_file).st_mtime
-        # ถ้ามีวัสดุนี้อยู่แล้วก็ไม่ต้องสร้างใหม่
-        if(mc.objExists(chue_node_mat)):
+        chue_node_mat = chue_mat+'_mat_'+chue_model#+'_%d'%os.stat(chue_tem_file).st_mtime
+        if(0):#if(mc.objExists(chue_node_mat)):
             chue_node_sg = chue_node_mat+'SG'
         else:
             # สร้างโหนดวัสดุ
