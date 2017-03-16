@@ -180,7 +180,7 @@ natang_sang = natang.roem()
 
 โปรแกรมนี้ได้ทำระบบเพื่อให้สะดวกในการคัดกรองว่าวัสดุไหนควรจะใส่อัลฟาแม็ป โดยเมื่อนำเข้าโมเดลขึ้นมาเสร็จจะมีขึ้นหน้าต่างให้ติ๊กเลือก
 
-![](http://i271.photobucket.com/albums/jj153/phyblas/yami/2017/d07ほ.jpg)-
+![](http://i271.photobucket.com/albums/jj153/phyblas/yami/2017/d07.jpg)
 
 ([มิกุ TDA ในชุดจีนโดย kooooi](http://kooooi.deviantart.com/gallery/))
 
