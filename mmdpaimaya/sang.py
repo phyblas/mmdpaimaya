@@ -350,6 +350,26 @@ def sang_kraduk(mmddata,chue_node_poly,khanat,ao_ik):
     
     for i,b in enumerate(mmddata.bones):
         chue_node_kho = list_chue_node_kho[i]
+            
+        if(b.parent_index>=0):
+            # ผูกติดข้อต่อแต่ละข้อเข้าด้วยกัน
+            chue_node_parent = list_chue_node_kho[b.parent_index]
+            mc.connectJoint(chue_node_kho,chue_node_parent,pm=1)
+        else:
+            list_chue_node_nok.append(chue_node_kho)
+        
+        # แก้ปัญหากรณีที่มุมหมุนของกระดูกมีค่าแปลกๆ (เกิดขึ้นได้อย่างไรยังไม่รู้แน่ชัด)
+        if(round(mc.getAttr(chue_node_kho+'.rx'))==-360.):
+            mc.setAttr(chue_node_kho+'.rx',0)
+        if(round(mc.getAttr(chue_node_kho+'.ry'))==-360.):
+            mc.setAttr(chue_node_kho+'.ry',0)
+        if(round(mc.getAttr(chue_node_kho+'.rz'))==-360.):
+            mc.setAttr(chue_node_kho+'.rz',0)
+        if(round(mc.getAttr(chue_node_kho+'.rx'))%360==180. and round(mc.getAttr(chue_node_kho+'.ry'))%360==180. and round(mc.getAttr(chue_node_kho+'.rz'))%360==180.):
+            mc.setAttr(chue_node_kho+'.rx',0)
+            mc.setAttr(chue_node_kho+'.ry',0)
+            mc.setAttr(chue_node_kho+'.rz',0)
+        
         if(b.getExternalRotationFlag()):
             # ตั้งมุมการหมุนให้ข้อที่เปลี่ยนมุมตามการหมุนของข้ออื่น
             chue_node_effect = list_chue_node_kho[b.effect_index] # โหนดข้อที่ส่งผลให้
@@ -379,12 +399,7 @@ def sang_kraduk(mmddata,chue_node_poly,khanat,ao_ik):
         if(b.ik):
             list_mi_ik.append(i) # เก็บโหนดที่มี IK
 
-        if(b.parent_index>=0):
-            # ผูกติดข้อต่อแต่ละข้อเข้าด้วยกัน
-            chue_node_parent = list_chue_node_kho[b.parent_index]
-            mc.connectJoint(chue_node_kho,chue_node_parent,pm=1)
-        else:
-            list_chue_node_nok.append(chue_node_kho)
+        
     
     # เก็บชื่อเดิมของข้อต่อทั้งหมดไว้เผื่อได้ใช้
     mc.addAttr(chue_node_poly,ln='khoto',nn=u'ชื่อข้อต่อทั้งหมด',dt='string')
