@@ -47,7 +47,12 @@ class Natangsang(QWidget):
         
         qhbl = QHBoxLayout()
         self.khronglak.addLayout(qhbl)
-        qhbl.addWidget(QLabel(u'ไฟล์'))
+        ql = QLabel(u'ไฟล์')
+        font = ql.font()
+        font.setPointSize(18)
+        font.setFamily('Tahoma')
+        ql.setFont(font)
+        qhbl.addWidget(ql)
         self.chong_chue_file = QLineEdit(chue_file) # ช่องใส่ชื่อไฟล์
         qhbl.addWidget(self.chong_chue_file)
         self.chong_chue_file.setFixedWidth(300)
@@ -57,7 +62,9 @@ class Natangsang(QWidget):
         
         qhbl = QHBoxLayout()
         self.khronglak.addLayout(qhbl)
-        qhbl.addWidget(QLabel(u'ขนาด')) # ช่องใส่ขนาด
+        ql = QLabel(u'ขนาด')
+        ql.setFont(font)
+        qhbl.addWidget(ql) # ช่องใส่ขนาด
         self.chong_khanat = QLineEdit(khanat)
         qhbl.addWidget(self.chong_khanat)
         self.chong_khanat.setFixedWidth(80)
@@ -67,6 +74,7 @@ class Natangsang(QWidget):
         qhbl = QHBoxLayout()
         self.khronglak.addLayout(qhbl)
         self.tick_yaek_poly = QCheckBox(u'แยกโพลิกอนตามวัสดุ')
+        self.tick_yaek_poly.setFont(font)
         qhbl.addWidget(self.tick_yaek_poly)
         self.tick_yaek_poly.setChecked(yaek_poly)
         self.tick_yaek_poly.clicked.connect(self.sang_kraduk_dai_mai)
@@ -74,15 +82,18 @@ class Natangsang(QWidget):
         qhbl = QHBoxLayout()
         self.khronglak.addLayout(qhbl)
         self.tick_bs = QCheckBox(u'สร้าง blend shape')
+        self.tick_bs.setFont(font)
         qhbl.addWidget(self.tick_bs)
         self.tick_bs.setChecked(ao_bs)
         
         self.tick_kraduk = QCheckBox(u'สร้างกระดูก')
+        self.tick_kraduk.setFont(font)
         qhbl.addWidget(self.tick_kraduk)
         self.tick_kraduk.setChecked(ao_kraduk)
         self.tick_kraduk.clicked.connect(self.sang_ik_dai_mai)
         
         self.tick_ik = QCheckBox(u'สร้าง IK')
+        self.tick_ik.setFont(font)
         qhbl.addWidget(self.tick_ik)
         self.tick_ik.setChecked(ao_ik)
         
@@ -91,11 +102,13 @@ class Natangsang(QWidget):
         qhbl = QHBoxLayout()
         self.khronglak.addLayout(qhbl)
         self.tick_siphiu = QCheckBox(u'ใส่สีผิว')
+        self.tick_siphiu.setFont(font)
         qhbl.addWidget(self.tick_siphiu)
         self.tick_siphiu.setChecked(ao_siphiu)
         self.tick_siphiu.clicked.connect(self.sang_alpha_dai_mai)
         
         self.tick_alpha = QCheckBox(u'สร้าง alpha map')
+        self.tick_alpha.setFont(font)
         qhbl.addWidget(self.tick_alpha)
         self.tick_alpha.setChecked(ao_alpha_map)
         
@@ -104,6 +117,7 @@ class Natangsang(QWidget):
         self.sang_kraduk_dai_mai()
         
         self.pum_roem_sang = QPushButton(u'เริ่มสร้าง') # ปุ่มเริ่มสร้าง
+        self.pum_roem_sang.setFont(font)
         self.khronglak.addWidget(self.pum_roem_sang)
         self.pum_roem_sang.clicked.connect(self.roem_sang)
     
