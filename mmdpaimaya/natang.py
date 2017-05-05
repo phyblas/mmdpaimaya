@@ -1,8 +1,16 @@
 # -*- coding: utf-8 -*-
+u'''
+โค้ดในส่วนของ GUI
+'''
 import maya.cmds as mc
 from sang import sangkhuen
+import sang_x
 import imp,os,codecs
 import sang
+from chipatha import khokhwam
+import imp
+import chipatha
+imp.reload(chipatha)
 
 try:
     imp.find_module('PySide2')
@@ -22,37 +30,51 @@ class Natangsang(QWidget):
         try:
             # อ่านข้อมูลค่าตั้งต้น
             with codecs.open(self.file_khatangton,'r',encoding='utf-8') as f:
+                phasa = int(f.readline().split('=')[-1].strip())
                 chue_file = unicode(f.readline().split('=')[-1].strip())
                 khanat = unicode(f.readline().split('=')[-1].strip())
                 yaek_poly = int(f.readline().split('=')[-1].strip())
                 ao_bs = int(f.readline().split('=')[-1].strip())
                 ao_kraduk = int(f.readline().split('=')[-1].strip())
                 ao_ik = int(f.readline().split('=')[-1].strip())
-                ao_siphiu = int(f.readline().split('=')[-1].strip())
+                watsadu = int(f.readline().split('=')[-1].strip())
                 ao_alpha_map = int(f.readline().split('=')[-1].strip())
         except:
-            # ถ้าไม่มีไฟล์อยู่กสร้างค่าตั้งต้นใหม่
+            # ถ้าไม่มีไฟล์อยู่ก็สร้างค่าตั้งต้นใหม่
+            phasa = 0
             chue_file = u''
             khanat = '8.0'
             yaek_poly = 0
             ao_bs = 1
             ao_kraduk = 1
             ao_ik = 0
-            ao_siphiu = 1
+            watsadu = 1
             ao_alpha_map = 1
         
-        self.setWindowTitle(u'~ MMD ไป Maya ~')
         self.khronglak = QVBoxLayout() # โครงหลักของหน้าต่าง
         self.setLayout(self.khronglak)
         
         qhbl = QHBoxLayout()
         self.khronglak.addLayout(qhbl)
-        ql = QLabel(u'ไฟล์')
-        font = ql.font()
-        font.setPointSize(18)
+        self.lueak_phasa = [QButtonGroup(),QRadioButton(u'ไทย'),QRadioButton(u'日本語'),QRadioButton(u'中文')]
+        self.lueak_phasa[phasa+1].setChecked(1)
+        self.lueak_phasa[0].addButton(self.lueak_phasa[1],1)
+        self.lueak_phasa[0].addButton(self.lueak_phasa[2],2)
+        self.lueak_phasa[0].addButton(self.lueak_phasa[3],3)
+        self.lueak_phasa[0].buttonClicked.connect(self.saikhokhwam)
+        qhbl.addStretch()
+        qhbl.addWidget(self.lueak_phasa[1])
+        qhbl.addWidget(self.lueak_phasa[2])
+        qhbl.addWidget(self.lueak_phasa[3])
+        
+        qhbl = QHBoxLayout()
+        self.khronglak.addLayout(qhbl)
+        self.ql_chue_file = QLabel()
+        font = self.ql_chue_file.font()
+        font.setPointSize(16)
         font.setFamily('Tahoma')
-        ql.setFont(font)
-        qhbl.addWidget(ql)
+        self.ql_chue_file.setFont(font)
+        qhbl.addWidget(self.ql_chue_file)
         self.chong_chue_file = QLineEdit(chue_file) # ช่องใส่ชื่อไฟล์
         qhbl.addWidget(self.chong_chue_file)
         self.chong_chue_file.setFixedWidth(300)
@@ -62,9 +84,9 @@ class Natangsang(QWidget):
         
         qhbl = QHBoxLayout()
         self.khronglak.addLayout(qhbl)
-        ql = QLabel(u'ขนาด')
-        ql.setFont(font)
-        qhbl.addWidget(ql) # ช่องใส่ขนาด
+        self.ql_khanat = QLabel()
+        self.ql_khanat.setFont(font)
+        qhbl.addWidget(self.ql_khanat) # ช่องใส่ขนาด
         self.chong_khanat = QLineEdit(khanat)
         qhbl.addWidget(self.chong_khanat)
         self.chong_khanat.setFixedWidth(80)
@@ -73,7 +95,7 @@ class Natangsang(QWidget):
         
         qhbl = QHBoxLayout()
         self.khronglak.addLayout(qhbl)
-        self.tick_yaek_poly = QCheckBox(u'แยกโพลิกอนตามวัสดุ')
+        self.tick_yaek_poly = QCheckBox()
         self.tick_yaek_poly.setFont(font)
         qhbl.addWidget(self.tick_yaek_poly)
         self.tick_yaek_poly.setChecked(yaek_poly)
@@ -81,18 +103,18 @@ class Natangsang(QWidget):
         
         qhbl = QHBoxLayout()
         self.khronglak.addLayout(qhbl)
-        self.tick_bs = QCheckBox(u'สร้าง blend shape')
+        self.tick_bs = QCheckBox()
         self.tick_bs.setFont(font)
         qhbl.addWidget(self.tick_bs)
         self.tick_bs.setChecked(ao_bs)
         
-        self.tick_kraduk = QCheckBox(u'สร้างกระดูก')
+        self.tick_kraduk = QCheckBox()
         self.tick_kraduk.setFont(font)
         qhbl.addWidget(self.tick_kraduk)
         self.tick_kraduk.setChecked(ao_kraduk)
         self.tick_kraduk.clicked.connect(self.sang_ik_dai_mai)
         
-        self.tick_ik = QCheckBox(u'สร้าง IK')
+        self.tick_ik = QCheckBox()
         self.tick_ik.setFont(font)
         qhbl.addWidget(self.tick_ik)
         self.tick_ik.setChecked(ao_ik)
@@ -101,30 +123,57 @@ class Natangsang(QWidget):
         
         qhbl = QHBoxLayout()
         self.khronglak.addLayout(qhbl)
-        self.tick_siphiu = QCheckBox(u'ใส่สีผิว')
-        self.tick_siphiu.setFont(font)
-        qhbl.addWidget(self.tick_siphiu)
-        self.tick_siphiu.setChecked(ao_siphiu)
-        self.tick_siphiu.clicked.connect(self.sang_alpha_dai_mai)
+        self.ql_watsadu = QLabel()
+        self.ql_watsadu.setFont(font)
+        qhbl.addWidget(self.ql_watsadu)
+        self.lueak_phiu = QComboBox()
+        ss = [u'',u'blinn',u'phong',u'lambert'] # ชนิดของวัสดุ
+        if(mc.objExists('defaultArnoldRenderOptions')): # ถ้ามีอาร์โนลด์อยู่
+            ss.append(u'aiStandard (Arnold)') # ก็ใส่ aiStandard ไปด้วย
+            mc.setAttr('defaultArnoldRenderOptions.autotx',0) # ทำให้ไม่มีการแปลงเท็กซ์เจอร์เป็น .tx โดยอัตโนมัติ
+            mc.setAttr('defaultArnoldRenderOptions.use_existing_tiled_textures',0)
+        for s in ss:
+            self.lueak_phiu.addItem(s)
+        self.lueak_phiu.setCurrentIndex(watsadu)
+        if(self.lueak_phiu.currentIndex()==-1):
+            self.lueak_phiu.setCurrentIndex(1)
+        self.lueak_phiu.setFont(font)
+        qhbl.addWidget(self.lueak_phiu)
         
-        self.tick_alpha = QCheckBox(u'สร้าง alpha map')
-        self.tick_alpha.setFont(font)
-        qhbl.addWidget(self.tick_alpha)
-        self.tick_alpha.setChecked(ao_alpha_map)
+        self.lueak_phiu.currentIndexChanged.connect(self.sang_alpha_dai_mai)
+        qhbl.addStretch()
+        
+        ql = QLabel('alpha map')
+        ql.setFont(font)
+        self.khronglak.addWidget(ql)
+        
+        # เลือกวิธีการจัดการกับอัลฟา
+        qhbl = QHBoxLayout()
+        self.khronglak.addLayout(qhbl)
+        qhbl.addWidget(QLabel('      '))
+        self.tick_alpha = [QButtonGroup(),QRadioButton(),QRadioButton(),QRadioButton()]
+        self.tick_alpha[ao_alpha_map+1].setChecked(1)
+        
+        for i in range(1,4):
+            self.tick_alpha[0].addButton(self.tick_alpha[i],i)
+            self.tick_alpha[i].setFont(font)
+            qhbl.addWidget(self.tick_alpha[i])
         
         qhbl.addStretch()
         self.sang_alpha_dai_mai()
         self.sang_kraduk_dai_mai()
         
-        self.pum_roem_sang = QPushButton(u'เริ่มสร้าง') # ปุ่มเริ่มสร้าง
+        self.pum_roem_sang = QPushButton() # ปุ่มเริ่มสร้าง
         self.pum_roem_sang.setFont(font)
         self.khronglak.addWidget(self.pum_roem_sang)
         self.pum_roem_sang.clicked.connect(self.roem_sang)
+        
+        self.saikhokhwam()
     
     # เมื่อกดปุ่มค้นไฟล์
     def lueak_file(self):
         self.setWindowFlags(self.windowFlags() & ~Qt.WindowStaysOnTopHint)
-        chue_file = QFileDialog.getOpenFileName(filter="PMD/PMX (*.pmd *.pmx)")
+        chue_file = QFileDialog.getOpenFileName(filter="PMD/PMX/X (*.pmd *.pmx *.x)")
         if(type(chue_file)==tuple):
             chue_file = unicode(chue_file[0])
         else:
@@ -138,12 +187,18 @@ class Natangsang(QWidget):
         self.tick_bs.setEnabled(dai)
         self.tick_kraduk.setEnabled(dai)
         self.tick_ik.setEnabled(dai and self.tick_kraduk.isChecked())
-        if(not dai and not self.tick_siphiu.isChecked()):
-            self.tick_siphiu.setChecked(1)
-            self.tick_alpha.setEnabled(1)
+        if(not dai and self.lueak_phiu.currentIndex()==0):
+            self.lueak_phiu.setCurrentIndex(1)
+            for i in range(1,4):
+                self.tick_alpha[i].setEnabled(1)
     
     def sang_alpha_dai_mai(self):
-        self.tick_alpha.setEnabled(self.tick_siphiu.isChecked())
+        tp = self.lueak_phiu.currentIndex()!=0
+        if(tp==0):
+            self.tick_yaek_poly.setChecked(0)
+            self.sang_kraduk_dai_mai()
+        for i in range(1,4):
+            self.tick_alpha[i].setEnabled(tp)
     
     def sang_ik_dai_mai(self):
         self.tick_ik.setEnabled(self.tick_kraduk.isChecked())
@@ -151,40 +206,65 @@ class Natangsang(QWidget):
     # เริ่มสร้างโมเดล
     def roem_sang(self):
         # ดึงข้อมูลจากช่องต่างๆที่กรอกและติ๊กไว้
+        phasa = self.lueak_phasa[0].checkedId()-1
         chue_file = unicode(self.chong_chue_file.text())
         khanat = float(self.chong_khanat.text())
         yaek_poly = int(self.tick_yaek_poly.isChecked())
         ao_bs = int(self.tick_bs.isChecked())
         ao_kraduk = int(self.tick_kraduk.isChecked())
         ao_ik = int(self.tick_ik.isChecked())
-        ao_siphiu = int(self.tick_siphiu.isChecked())
-        ao_alpha_map = int(self.tick_alpha.isChecked())
-        chue_node_poly,list_mat_mi_alpha = sangkhuen(chue_file,khanat,yaek_poly,ao_bs,ao_kraduk,ao_ik,ao_siphiu,ao_alpha_map)
+        watsadu = self.lueak_phiu.currentIndex()
+        ao_alpha_map = self.tick_alpha[0].checkedId()-1
+        
+        if(chue_file[-2]!='.'):
+            # ถ้าเป็น .pmd หรือ .pmx
+            chue_node_poly,list_mat_mi_alpha = sangkhuen(chue_file,khanat,yaek_poly,ao_bs,ao_kraduk,ao_ik,watsadu,ao_alpha_map)
+        else:
+            # ถ้าเป็น .x
+            sang_x.sangkhuen(chue_file,khanat,ao_alpha_map,yaek_poly,watsadu)
+            list_mat_mi_alpha = []
+        
         # เมื่อสร้างสำเร็จแล้วให้บันทึกค่าที่เลือกไว้เป็นค่าตั้งต้นสำหรับคราวต่อไป
         with codecs.open(self.file_khatangton,'w','utf-8') as f:
+            f.write(u'ภาษา = '+unicode(phasa)+'\n')
             f.write(u'ชื่อไฟล์ = '+chue_file+'\n')
             f.write(u'ขนาด = '+unicode(self.chong_khanat.text())+'\n')
             f.write(u'แยกโพลิกอนตามวัสดุ = %d\n'%yaek_poly)
             f.write(u'สร้าง blend shape = %d\n'%ao_bs)
             f.write(u'สร้างกระดูก = %d\n'%ao_kraduk)
             f.write(u'สร้าง IK = %d\n'%ao_ik)
-            f.write(u'ใส่สีผิว = %d\n'%ao_siphiu)
+            f.write(u'วัสดุ = %d\n'%watsadu)
             f.write(u'สร้าง alpha map = %d\n'%ao_alpha_map)
         self.close()
         # เปิดหน้าต่างสำหรับคัดเลือกวัสดุที่จะทำอัลฟาแม็ป
-        if(list_mat_mi_alpha):
-            self.natangmai = Natang_alpha(chue_file,list_mat_mi_alpha)
+        if(list_mat_mi_alpha and ao_alpha_map==1):
+            self.natangmai = Natang_alpha(chue_file,list_mat_mi_alpha,phasa)
             self.natangmai.show()
-
-
+    
+    # ใส่ข้อความตามภาษาที่เลือก
+    def saikhokhwam(self):
+        ps = self.lueak_phasa[0].checkedId()-1
+        self.setWindowTitle(khokhwam[0][ps])
+        self.ql_chue_file.setText(khokhwam[1][ps])
+        self.ql_khanat.setText(khokhwam[2][ps])
+        self.tick_yaek_poly.setText(khokhwam[3][ps])
+        self.tick_bs.setText(khokhwam[4][ps])
+        self.tick_kraduk.setText(khokhwam[5][ps])
+        self.tick_ik.setText(khokhwam[6][ps])
+        self.ql_watsadu.setText(khokhwam[7][ps])
+        self.lueak_phiu.setItemText(0,khokhwam[8][ps])
+        self.tick_alpha[1].setText(khokhwam[9][ps])
+        self.tick_alpha[2].setText(khokhwam[10][ps])
+        self.tick_alpha[3].setText(khokhwam[11][ps])
+        self.pum_roem_sang.setText(khokhwam[12][ps])
 
 # หน้าต่างคัดเลือกวัสดุที่จะเอาอัลฟาแม็ป
 class Natang_alpha(QWidget):
-    def __init__(self,chue_file,list_mat_mi_alpha):
+    def __init__(self,chue_file,list_mat_mi_alpha,ps=0):
         QWidget.__init__(self,None,Qt.WindowStaysOnTopHint)
         self.chue_file = chue_file
         self.list_mat_mi_alpha = list_mat_mi_alpha
-        self.setWindowTitle(u'~ เลือกว่าวัสดุไหนจะเอา alpha map ~')
+        self.setWindowTitle(khokhwam[13][ps])
         self.khronglak = QVBoxLayout()
         self.setLayout(self.khronglak)
         
@@ -202,7 +282,11 @@ class Natang_alpha(QWidget):
             
         self.klum_tick_bs.buttonClicked[int].connect(self.chueam_alpha)
         
-        self.pum_setsin = QPushButton(u'เสร็จสิ้น')
+        self.pum_setsin = QPushButton(khokhwam[14][ps])
+        font = self.pum_setsin.font()
+        font.setPointSize(18)
+        font.setFamily('Tahoma')
+        self.pum_setsin.setFont(font)
         self.khronglak.addWidget(self.pum_setsin)
         self.pum_setsin.clicked.connect(self.setsin)
     

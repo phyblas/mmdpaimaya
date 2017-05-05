@@ -1,4 +1,8 @@
 # -*- coding: utf-8 -*-
+u'''
+โค้ดสำหรับสร้างโมเดล MMD ในมายา
+'''
+
 import maya.cmds as mc
 import pymel.core as pm
 import sys,os,math,re,itertools,time,codecs
@@ -25,10 +29,10 @@ def an_model(chue_tem_file):
 
 
 # สร้างโพลิกอน รวมทั้งวัสดุและเท็กซ์เจอร์
-def sang_poly(chue_tem_file,mmddata,khanat=0.08,ao_alpha_map=1,yaek_poly=0,ao_siphiu=1):
+def sang_poly(chue_tem_file,mmddata,khanat=8,ao_alpha_map=1,yaek_poly=0,watsadu=1):
     chue_file = os.path.basename(chue_tem_file) # ชื่อไฟล์ไม่รวมพาธ
     # ชื่อโมเดลเอาชื่อไฟล์มาตัดสกุลออกแล้วเปลี่ยนเป็นภาษาญี่ปุ่นเป็นโรมาจิให้หมด
-    chue_model = romaji(chuedidi(mmddata.name,os.path.splitext(chue_file)[0])) 
+    chue_model = romaji(chuedidi(mmddata.name,os.path.splitext(chue_file)[0]))
     
     print(u'สร้างพื้นผิว')
     if(yaek_poly):
@@ -50,14 +54,23 @@ def sang_poly(chue_tem_file,mmddata,khanat=0.08,ao_alpha_map=1,yaek_poly=0,ao_si
             u[i] = c.uv.x
             v[i] = 1.-c.uv.y
         
-        n_index = len(mmddata.indices) # จำนวนดัชนีจุด (เป็น 3 เท่าของจำนวนหน้า)
-        index_chut = om.MIntArray(n_index)
+        n_index = 0 # จำนวนจุดที่ใช้ได้
+        list_index_chut = []
         # วนซ้ำเพื่อป้อนค่าดัชนีของจุด
-        for i,c in enumerate(mmddata.indices):
-            index_chut.set(c,i+2-(i%3)*2) # เรียงสลับทีละ 3 แบบนี้ 2,1,0, 5,4,3, 8,7,6, ...
-        
+        for i in range(0,len(mmddata.indices),3):
+            ic0 = mmddata.indices[i]
+            ic1 = mmddata.indices[i+1]
+            ic2 = mmddata.indices[i+2]
+            if(ic0!=ic1!=ic2!=ic0): # หน้าที่ใช้ได้คือจะต้องไม่ใช้จุดซ้ำกันในหน้าเดียว
+                list_index_chut.extend([ic2,ic1,ic0]) # ใส่จุดลงในลิสต์
+                n_index += 3
+
+        index_chut = om.MIntArray(n_index)
+        for i,ic in enumerate(list_index_chut):
+            index_chut.set(ic,i)
+
         n_na = n_index/3 # จำนวนหน้า
-        n_chut_to_na = om.MIntArray(n_na,3) # จำนวนจุดต่อหน้า ตั้งให้แต่ละหน้ามี 3 จุดทั้งหมด
+        array_n_chut_to_na = om.MIntArray(n_na,3) # จำนวนจุดต่อหน้า ตั้งให้แต่ละหน้ามี 3 จุดทั้งหมด
         
         trans_fn = om.MFnTransform()
         trans_obj = trans_fn.create()
@@ -65,16 +78,20 @@ def sang_poly(chue_tem_file,mmddata,khanat=0.08,ao_alpha_map=1,yaek_poly=0,ao_si
         chue_node_poly = trans_fn.name()
         fn_mesh = om.MFnMesh()
         # สร้างโพลิกอนจากข้อมูลทั้งหมดที่เตรียมไว้
-        fn_mesh.create(n_chut,n_na,chut,n_chut_to_na,index_chut,u,v,trans_obj)
+        fn_mesh.create(n_chut,n_na,chut,array_n_chut_to_na,index_chut,u,v,trans_obj)
         fn_mesh.setName(chue_node_poly+'Shape')
-        fn_mesh.assignUVs(n_chut_to_na,index_chut)
+        fn_mesh.assignUVs(array_n_chut_to_na,index_chut)
         
         # เพิ่มค่าองค์ประกอบที่บอกว่ามาจาก MMD
         mc.addAttr(chue_node_poly,ln='chakMMD',nn=u'มาจาก MMD',at='bool')
         mc.setAttr(chue_node_poly+'.chakMMD',1)
         
+        # ทำให้โปร่งใสได้ สำหรับอาร์โนลด์
+        if(watsadu==4):
+            mc.setAttr(chue_node_poly+'.aiOpaque',0)
+        
         # ถ้าไม่เอาสีผิวก็ให้ใส่ผิวตั้งต้นแล้วก็ไม่ต้องสร้างวัสดุแล้ว
-        if(not ao_siphiu):
+        if(not watsadu):
             mc.select(chue_node_poly)
             mc.hyperShade(a='lambert1')
             return chue_node_poly,[]
@@ -139,6 +156,11 @@ def sang_poly(chue_tem_file,mmddata,khanat=0.08,ao_alpha_map=1,yaek_poly=0,ao_si
     nap_na = 0
     list_mat_mi_alpha = [] # ลิสต์เก็บวัสดุที่มีอัลฟา
     for i,mat in enumerate(mmddata.materials):
+        n_index = mat.vertex_count # จำนวนดัชนีจุด (เป็น 3 เท่าของจำนวนหน้า)
+        if(n_index==0):
+            continue
+        n_na = n_index/3 # จำนวนหน้าที่วัสดุจะไปแปะลง
+        
         # ตั้งชื่อให้เป็นโรมาจิ
         chue_mat = romaji(chuedidi(mat.name,u'watsadu%d'%i))
         
@@ -146,21 +168,38 @@ def sang_poly(chue_tem_file,mmddata,khanat=0.08,ao_alpha_map=1,yaek_poly=0,ao_si
         if(0):#if(mc.objExists(chue_node_mat)):
             chue_node_sg = chue_node_mat+'SG'
         else:
-            # สร้างโหนดวัสดุ
-            chue_node_mat = mc.shadingNode('blinn',asShader=1,n=chue_node_mat)
             # ดึงข้อมูลค่าคุณสมบัติต่างๆของวัสดุ
             dc = (mat.diffuse_color.r,mat.diffuse_color.g,mat.diffuse_color.b)
             ambient = (mat.ambient_color.r,mat.ambient_color.g,mat.ambient_color.b)
             spec = (mat.specular_color.r,mat.specular_color.g,mat.specular_color.b)
+            opa = (mat.alpha,mat.alpha,mat.alpha)
             trans = (1-mat.alpha,1-mat.alpha,1-mat.alpha)
             sf = mat.specular_factor
-            # ตั้งค่าคุณสมบัติต่างๆของวัสดุตามข้อมูลที่ดึงมาได้
-            mc.setAttr(chue_node_mat+'.color',*dc,typ='double3')
-            mc.setAttr(chue_node_mat+'.ambientColor',*ambient,typ='double3')
-            mc.setAttr(chue_node_mat+'.specularColor',*spec,typ='double3')
-            mc.setAttr(chue_node_mat+'.transparency',*trans,typ='double3')
-            mc.setAttr(chue_node_mat+'.specularRollOff',0.75**(math.log(max(sf,2**-10))+1))
-            mc.setAttr(chue_node_mat+'.eccentricity',sf*0.01)
+            # สร้างโหนดวัสดุและตั้งค่าคุณสมบัติต่างๆของวัสดุตามข้อมูลที่ดึงมาได้
+            if(watsadu==1):
+                chue_node_mat = mc.shadingNode('blinn',asShader=1,n=chue_node_mat)
+                mc.setAttr(chue_node_mat+'.specularColor',*spec,typ='double3')
+                mc.setAttr(chue_node_mat+'.specularRollOff',0.75**(math.log(max(sf,2**-10))+1))
+                mc.setAttr(chue_node_mat+'.eccentricity',sf*0.01)
+            elif(watsadu==2):
+                chue_node_mat = mc.shadingNode('phong',asShader=1,n=chue_node_mat)
+                mc.setAttr(chue_node_mat+'.specularColor',*spec,typ='double3')
+                mc.setAttr(chue_node_mat+'.cosinePower',max((10000./max(sf,15)**2-3.357)/0.454,2))
+            elif(watsadu==3):
+                chue_node_mat = mc.shadingNode('lambert',asShader=1,n=chue_node_mat)
+            
+            if(watsadu in [1,2,3]):
+                mc.setAttr(chue_node_mat+'.color',*dc,typ='double3')
+                mc.setAttr(chue_node_mat+'.ambientColor',*ambient,typ='double3')
+                mc.setAttr(chue_node_mat+'.transparency',*trans,typ='double3')
+            elif(watsadu==4):
+                chue_node_mat = mc.shadingNode('aiStandard',asShader=1,n=chue_node_mat)
+                mc.setAttr(chue_node_mat+'.color',*dc,typ='double3')
+                mc.setAttr(chue_node_mat+'.KsColor',*spec,typ='double3')
+                mc.setAttr(chue_node_mat+'.opacity',*opa,typ='double3')
+                mc.setAttr(chue_node_mat+'.Ks',0.75**(math.log(max(sf,0.36788))+1))
+                mc.setAttr(chue_node_mat+'.specularRoughness',min(sf*0.01,1))
+                mc.setAttr(chue_node_mat+'.Kd',0.8)
             # เก็บชื่อเดิม (ชื่อญี่ปุ่น) ของวัสดุไว้เผื่อใช้
             mc.addAttr(chue_node_mat,ln='namae',nn=u'ชื่อวัสดุ',dt='string')
             mc.setAttr(chue_node_mat+'.namae',chuedidi(mat.name),typ='string')
@@ -172,37 +211,56 @@ def sang_poly(chue_tem_file,mmddata,khanat=0.08,ao_alpha_map=1,yaek_poly=0,ao_si
                 mc.connectAttr(chue_node_file+'.outColor',chue_node_mat+'.color') # เชื่อมต่อสีจากไฟล์เข้ากับวัสดุ
                 
                 # ถ้าเลือกว่าจะทำอัลฟาแม็ปด้วย และไฟล์มีอัลฟาแม็ป
-                if(ao_alpha_map and mc.getAttr(chue_node_file+'.fileHasAlpha')==1 and mat.alpha==1.):
-                    if(mmddata.textures[i_tex].split('.')[-1].lower() in ['png','tga','dds']):
-                        if(list_mat_ao_alpha!=[] and chue_mat not in list_mat_ao_alpha):
+                if(ao_alpha_map and mc.getAttr(chue_node_file+'.fileHasAlpha')==1): #  and mat.alpha==1.
+                    if(mmddata.textures[i_tex].split('.')[-1].lower() in ['png','tga','dds','bmp']):
+                        if(list_mat_ao_alpha!=[] and chue_mat not in list_mat_ao_alpha and ao_alpha_map==1):
                             # ถ้าไม่มีอยู่ในลิสต์ที่เลือกไว้แล้วว่าจะทำอัลฟาแม็ป
                             ao_alpha = 0
                         else:
                             # ถ้ามีอยู่ในลิสต์ที่ต้องการทำ หรือยังไม่ได้บันทึกข้อมูลการเลือกเอาไว้
-                            mc.connectAttr(chue_node_file+'.outTransparency',chue_node_mat+'.transparency')
+                            if(watsadu in [1,2,3]):
+                                mc.connectAttr(chue_node_file+'.outTransparency',chue_node_mat+'.transparency')
+                            elif(watsadu==4):
+                                mc.connectAttr(chue_node_file+'.outAlpha',chue_node_mat+'.opacityR')
+                                mc.connectAttr(chue_node_file+'.outAlpha',chue_node_mat+'.opacityG')
+                                mc.connectAttr(chue_node_file+'.outAlpha',chue_node_mat+'.opacityB')
                             ao_alpha = 1
                         list_mat_mi_alpha.append((chue_node_mat,chue_mat,ao_alpha))
             
-            chue_node_sg = mc.sets(r=1,nss=1,em=1,n=chue_node_mat+'SG')    
-            mc.connectAttr(chue_node_mat+'.outColor',chue_node_sg+'.surfaceShader', f=1)    
-        
-        n_index = mat.vertex_count # จำนวนดัชนีจุด (เป็น 3 เท่าของจำนวนหน้า)
-        n_na = n_index/3 # จำนวนหน้าที่วัสดุจะไปแปะลง
+            chue_node_sg = mc.sets(r=1,nss=1,em=1,n=chue_node_mat+'SG')
+            mc.connectAttr(chue_node_mat+'.outColor',chue_node_sg+'.surfaceShader', f=1)
         
         if(yaek_poly):
             # ถ้าเลือกว่าให้แยกโพลิกอนให้ทำการสร้างโพลิกอนแยกตามวัสดุขึ้นมาตรงนี้
             nap_index = nap_na*3
             
-            n_chut_to_na = om.MIntArray(n_na,3)
-            index_chut = om.MIntArray(n_index)
+            n_index_chaidai = 0
+            list_index_chut = []
             dict_chut = {} # ดิกเก็บเลขดัชนีของจุดยอดที่ถูกใช้
-            k = 0
-            for j in range(n_index):
-                ic = mmddata.indices[nap_index+j]
-                if(ic not in dict_chut):
-                    dict_chut[ic] = k
-                    k += 1
-                index_chut.set(dict_chut[ic],j+2-(j%3)*2)
+            k = 0 # ค่าดัชนีใหม่
+            for j in range(0,n_index,3): # ค่าดัชนีจากในไฟล์
+                ic0 = mmddata.indices[nap_index+j]
+                ic1 = mmddata.indices[nap_index+j+1]
+                ic2 = mmddata.indices[nap_index+j+2]
+                if(ic0!=ic1!=ic2!=ic0):
+                    if(ic0 not in dict_chut):
+                        dict_chut[ic0] = k # จับคู่ดัชนีใหม่กับดัชนีในไฟล์
+                        k += 1
+                    if(ic1 not in dict_chut):
+                        dict_chut[ic1] = k
+                        k += 1
+                    if(ic2 not in dict_chut):
+                        dict_chut[ic2] = k
+                        k += 1
+                    list_index_chut.extend([dict_chut[ic2],dict_chut[ic1],dict_chut[ic0]])
+                    n_index_chaidai += 3
+            
+            index_chut = om.MIntArray(n_index_chaidai)
+            for j,ic in enumerate(list_index_chut):
+                index_chut.set(ic,j)
+            
+            n_na_chaidai = n_index_chaidai/3
+            array_n_chut_to_na = om.MIntArray(n_na_chaidai,3)
             
             n_chut = len(dict_chut)
             chut = om.MFloatPointArray(n_chut)
@@ -230,16 +288,20 @@ def sang_poly(chue_tem_file,mmddata,khanat=0.08,ao_alpha_map=1,yaek_poly=0,ao_si
             fn_mesh = om.MFnMesh()
             
             # สร้างโพลิกอน
-            fn_mesh.create(n_chut,n_na,chut,n_chut_to_na,index_chut,u,v,trans_obj)
+            fn_mesh.create(n_chut,n_na_chaidai,chut,array_n_chut_to_na,index_chut,u,v,trans_obj)
             fn_mesh.setName(chue_node_poly+'Shape')
-            fn_mesh.assignUVs(n_chut_to_na,index_chut)
+            fn_mesh.assignUVs(array_n_chut_to_na,index_chut)
             
+            # ทำให้โปร่งใสได้ สำหรับอาร์โนลด์
+            if(watsadu==4):
+                mc.setAttr(chue_node_poly+'.aiOpaque',0)
+                
             # เพิ่มค่าองค์ประกอบที่บอกว่ามาจาก MMD
             mc.addAttr(chue_node_poly,ln='chakMMD',nn=u'มาจาก MMD',at='bool')
             mc.setAttr(chue_node_poly+'.chakMMD',1)
             
             # ใส่วัสดุให้กับผิว
-            mc.sets(chue_node_poly+'.f[%s:%s]'%(0,n_na-1),fe=chue_node_sg)
+            mc.sets(chue_node_poly+'.f[%s:%s]'%(0,n_na_chaidai-1),fe=chue_node_sg)
             nap_na += n_na # นับไล่หน้าต่อ
             
             list_chue_node_poly.append(chue_node_poly)
@@ -489,12 +551,12 @@ def sang_kraduk(mmddata,chue_node_poly,khanat,ao_ik):
     return list_chue_node_nok
 
 
-def sangkhuen(chue_tem_file,khanat,yaek_poly=0,ao_bs=1,ao_kraduk=1,ao_ik=0,ao_siphiu=1,ao_alpha_map=1):
+def sangkhuen(chue_tem_file,khanat,yaek_poly=0,ao_bs=1,ao_kraduk=1,ao_ik=0,watsadu=1,ao_alpha_map=1):
     t_roem = time.time() # เริ่มจับเวลา
     
     mmddata = an_model(chue_tem_file) # อ่านข้อมูลโมเดล
     # สร้างโพลิกอน
-    chue_node_poly,list_mat_mi_alpha = sang_poly(chue_tem_file,mmddata,khanat,ao_alpha_map,yaek_poly,ao_siphiu)
+    chue_node_poly,list_mat_mi_alpha = sang_poly(chue_tem_file,mmddata,khanat,ao_alpha_map,yaek_poly,watsadu)
     
     if(not yaek_poly):
         # สร้างเบลนด์เชป (ถ้าติ๊กว่าให้สร้าง)    
