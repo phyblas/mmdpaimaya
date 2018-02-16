@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
 u'''
-โค้ดสำหรับสร้างโมเดลในมายาจากไฟล์ .x
+โค้ดสำหรับนำเข้าไฟล์แบบจำลอง .x เข้ามาในมายา
 '''
 
 import maya.cmds as mc
-import sys,os,math,re,itertools,codecs
+import sys,os,math,re
 import maya.OpenMaya as om
-from mmdpaimaya.chipatha import romaji,chuedidi
+from mmdpaimaya.chipatha import romaji,chuedidi,chueam_placed2d
 
 class Material:
     def __init__(self):
-        0
+        'วัสดุ'
         
 class Xdata:
     def __init__(self,chue_tem_file):
@@ -61,7 +61,7 @@ class Xdata:
                     # ไล่ป้อนค่า uv ของจุดยอดเก็บลงลิสต์
                     for i in range(n):
                         s = file_x.readline().strip().split(';')
-                        if(len(s)<=2):
+                        if(len(s)<=2 or ',' in s[0]):
                             s = s[0].split(',')
                         self.uv_vertici.append([float(s[0]),1-float(s[1])])
                     while('}' not in s):
@@ -126,101 +126,127 @@ class Xdata:
         
     
 
-def sangkhuen(chue_tem_file,khanat=8,ao_alpha_map=1,yaek_poly=0,watsadu=1):
+def sangkhuen(chue_tem_file,khanat=8,ao_alpha_map=1,yaek_poly=0,watsadu=1,yaek_alpha=0):
     chue_model = romaji(chuedidi(os.path.splitext(os.path.basename(chue_tem_file))[0]))
     path_file = os.path.dirname(chue_tem_file)
     xdata = Xdata(chue_tem_file)
+    set_mat = set(xdata.indici_materiali)
+    set_index_tex = set([m.tex for i,m in enumerate(xdata.materiali) if i in set_mat])
+    
+    vers = int(mc.about(version=1))>=2018 # เวอร์ชันเป็น 2018 ขึ้นไปหรือไม่
+    try:
+        from PIL import Image
+    except ImportError:
+        yaek_alpha = 0
+    
+    if(watsadu==4): # ดูเวอร์ชันของมายาเพื่อแยกแยะว่าใช้แอตทริบิวต์ของ aiStandard หรือ aiStandardSurface
+        attr = [['color','KsColor','opacity','Ks','specularRoughness','Kd'],
+                ['baseColor','specularColor','opacity','specular','specularRoughness','base']
+        ][vers]
     
     if(watsadu or yaek_poly):
         # สร้างเท็กซ์เจอร์
-        list_chue_node_file = [] # ลิสต์เก็บชื่อโหนดของไฟล์เท็กซ์เจอร์
-        for tex in xdata.tex:
+        list_chue_nod_file = [] # ลิสต์เก็บชื่อโหนดของไฟล์เท็กซ์เจอร์
+        list_chue_nod_file_alpha = [] # ลิสต์เก็บชื่อโหนดของไฟล์อัลฟาของเท็กซ์เจอร์
+        for i,tex in enumerate(xdata.tex):
             tex = chuedidi(tex)
             path_tem_tex = os.path.join(path_file,tex) # ไฟล์เท็กซ์เจอร์ เพิ่มพาธของไฟล์โมเดลลงไป
             chue_tex = tex.replace('\\','_').replace('/','_').replace('.','_')
             chue_tex = romaji(chue_tex) # เปลี่ยนชื่อเป็นโรมาจิ
+            chue_nod_file = chue_tex+'_file_'+chue_model
+            chue_nod_file_alpha = chue_nod_file
+            if(i in set_index_tex):
+                # สร้างโหนดไฟล์เท็กซ์เจอร์
+                chue_nod_file = mc.shadingNode('file',at=1,n=chue_nod_file)
+                chue_nod_file_alpha = chue_nod_file
+                # สร้างโหนด placed2d
+                chue_nod_placed2d = mc.shadingNode('place2dTexture',au=1,n=chue_tex+'_placed2d_'+chue_model)
+                mc.setAttr(chue_nod_file+'.ftn',path_tem_tex,typ='string')
+                
+                # เชื่อมค่าต่างๆของโหนด placed2d เข้ากับโหนดไฟล์
+                for cp in chueam_placed2d:
+                    mc.connectAttr('%s.%s'%(chue_nod_placed2d,cp[0]),'%s.%s'%(chue_nod_file,cp[1]),f=1)
+                
+                # กรณีที่เลือกว่าจะแยกอัลฟาไปอีกไฟล์ และไฟล์นั้นมีอัลฟาอยู่ด้วย
+                if(yaek_alpha and ao_alpha_map and mc.getAttr(chue_nod_file+'.fileHasAlpha')==1):
+                    file_phap = Image.open(path_tem_tex) # เปิดอ่านไฟล์ด้วย PIL
+                    file_alpha = file_phap.split()[-1] # สกัดเอาเฉพาะอัลฟา
+                    pta = os.path.split(path_tem_tex)
+                    path_tem_alpha = os.path.join(pta[0],u'00arufa_'+pta[1]) # ชื่อไฟล์ใหม่ที่จะสร้าง แค่เติมคำนำหน้า
+                    file_alpha.save(path_tem_alpha) # สร้างไฟล์ค่าอัลฟา
+                    chue_nod_file_alpha = mc.shadingNode('file',at=1,n=chue_nod_file+'_alpha') # โหนดไฟล์อัลฟา
+                    mc.setAttr(chue_nod_file_alpha+'.ftn',path_tem_alpha,typ='string')
+                    mc.setAttr(chue_nod_file_alpha+'.alphaIsLuminance',1)
+                    for cp in chueam_placed2d: # เชื่อมกับโหนด placed2d อันเดียวกับของไฟล์ภาพ
+                        mc.connectAttr('%s.%s'%(chue_nod_placed2d,cp[0]),'%s.%s'%(chue_nod_file_alpha,cp[1]),f=1)     
             
-            chue_node_file = chue_tex+'_file_'+chue_model
-            # สร้างโหนดไฟล์เท็กซ์เจอร์
-            chue_node_file = mc.shadingNode('file',at=1,n=chue_node_file)
-            # สร้างโหนด placed2d
-            chue_node_placed2d = mc.shadingNode('place2dTexture',au=1,n=chue_tex+'_placed2d_'+chue_model)
-            mc.setAttr(chue_node_file+'.ftn',path_tem_tex,typ='string')
-            
-            # เชื่อมค่าต่างๆของโหนด placed2d เข้ากับโหนดไฟล์
-            mc.connectAttr('%s.coverage'%chue_node_placed2d,'%s.coverage'%chue_node_file,f=1)
-            mc.connectAttr('%s.translateFrame'%chue_node_placed2d,'%s.translateFrame'%chue_node_file,f=1)
-            mc.connectAttr('%s.rotateFrame'%chue_node_placed2d,'%s.rotateFrame'%chue_node_file,f=1)
-            mc.connectAttr('%s.mirrorU'%chue_node_placed2d,'%s.mirrorU'%chue_node_file,f=1)
-            mc.connectAttr('%s.mirrorV'%chue_node_placed2d,'%s.mirrorV'%chue_node_file,f=1)
-            mc.connectAttr('%s.stagger'%chue_node_placed2d,'%s.stagger'%chue_node_file,f=1)
-            mc.connectAttr('%s.wrapU'%chue_node_placed2d,'%s.wrapU'%chue_node_file,f=1)
-            mc.connectAttr('%s.wrapV'%chue_node_placed2d,'%s.wrapV'%chue_node_file,f=1)
-            mc.connectAttr('%s.repeatUV'% chue_node_placed2d,'%s.repeatUV'%chue_node_file,f=1)
-            mc.connectAttr('%s.offset'%chue_node_placed2d,'%s.offset'%chue_node_file,f=1)
-            mc.connectAttr('%s.rotateUV'%chue_node_placed2d,'%s.rotateUV'%chue_node_file,f=1)
-            mc.connectAttr('%s.noiseUV'%chue_node_placed2d,'%s.noiseUV'%chue_node_file,f=1)
-            mc.connectAttr('%s.vertexUvOne'%chue_node_placed2d,'%s.vertexUvOne'%chue_node_file,f=1)
-            mc.connectAttr('%s.vertexUvTwo'%chue_node_placed2d,'%s.vertexUvTwo'%chue_node_file,f=1)
-            mc.connectAttr('%s.vertexUvThree'%chue_node_placed2d,'%s.vertexUvThree'%chue_node_file,f=1)
-            mc.connectAttr('%s.vertexCameraOne'%chue_node_placed2d,'%s.vertexCameraOne'%chue_node_file,f=1)
-            mc.connectAttr('%s.outUV'%chue_node_placed2d,'%s.uv'%chue_node_file,f=1)
-            mc.connectAttr('%s.outUvFilterSize'%chue_node_placed2d,'%s.uvFilterSize'%chue_node_file,f=1)
-            
-            list_chue_node_file.append(chue_node_file)
+            list_chue_nod_file.append(chue_nod_file)
+            list_chue_nod_file_alpha.append(chue_nod_file_alpha)
         
         # สร้างโหนดวัสดุ
-        list_chue_node_mat = []
-        list_chue_node_sg = []
+        list_chue_nod_mat = []
+        list_chue_nod_sg = []
         for i,mat in enumerate(xdata.materiali):
+            if(i not in set_mat):
+                list_chue_nod_mat.append('')
+                list_chue_nod_sg.append('')
+                continue
             chue_mat = u'watsadu%d'%i
-            chue_node_mat = chue_mat+'_mat_'+chue_model
+            chue_nod_mat = chue_mat+'_mat_'+chue_model
             
             opa = (mat.tf,mat.tf,mat.tf)
             trans = (1-mat.tf,1-mat.tf,1-mat.tf)
             
             if(watsadu==1):
-                chue_node_mat = mc.shadingNode('blinn',asShader=1,n=chue_node_mat)
-                mc.setAttr(chue_node_mat+'.specularColor',*mat.ks,typ='double3')
-                mc.setAttr(chue_node_mat+'.specularRollOff',0.75**(math.log(max(mat.ns,2**-10))+1))
-                mc.setAttr(chue_node_mat+'.eccentricity',mat.ns*0.01)
+                chue_nod_mat = mc.shadingNode('blinn',asShader=1,n=chue_nod_mat)
+                mc.setAttr(chue_nod_mat+'.specularColor',*mat.ks,typ='double3')
+                mc.setAttr(chue_nod_mat+'.specularRollOff',0.75**(math.log(max(mat.ns,2**-10))+1))
+                mc.setAttr(chue_nod_mat+'.eccentricity',mat.ns*0.01)
             elif(watsadu==2):
-                chue_node_mat = mc.shadingNode('phong',asShader=1,n=chue_node_mat)
-                mc.setAttr(chue_node_mat+'.specularColor',*mat.ks,typ='double3')
-                mc.setAttr(chue_node_mat+'.cosinePower',max((10000./max(mat.ns,15)**2-3.357)/0.454,2))
+                chue_nod_mat = mc.shadingNode('phong',asShader=1,n=chue_nod_mat)
+                mc.setAttr(chue_nod_mat+'.specularColor',*mat.ks,typ='double3')
+                mc.setAttr(chue_nod_mat+'.cosinePower',max((10000./max(mat.ns,15)**2-3.357)/0.454,2))
             elif(watsadu==3):
-                chue_node_mat = mc.shadingNode('lambert',asShader=1,n=chue_node_mat)
+                chue_nod_mat = mc.shadingNode('lambert',asShader=1,n=chue_nod_mat)
             
             if(watsadu in [1,2,3]):
-                mc.setAttr(chue_node_mat+'.color',*mat.kd,typ='double3')
-                mc.setAttr(chue_node_mat+'.ambientColor',*mat.ka,typ='double3')
-                mc.setAttr(chue_node_mat+'.transparency',*trans,typ='double3')
+                mc.setAttr(chue_nod_mat+'.color',*mat.kd,typ='double3')
+                mc.setAttr(chue_nod_mat+'.ambientColor',*mat.ka,typ='double3')
+                mc.setAttr(chue_nod_mat+'.transparency',*trans,typ='double3')
             elif(watsadu==4):
-                chue_node_mat = mc.shadingNode('aiStandard',asShader=1,n=chue_node_mat)
-                mc.setAttr(chue_node_mat+'.color',*mat.kd,typ='double3')
-                mc.setAttr(chue_node_mat+'.KsColor',*mat.ks,typ='double3')
-                mc.setAttr(chue_node_mat+'.opacity',*opa,typ='double3')
-                mc.setAttr(chue_node_mat+'.Ks',0.75**(math.log(max(mat.ns,0.36788))+1))
-                mc.setAttr(chue_node_mat+'.specularRoughness',min(mat.ns*0.01,1))
-                mc.setAttr(chue_node_mat+'.Kd',0.8)
+                if(vers):
+                    chue_nod_mat = mc.shadingNode('aiStandardSurface',asShader=1,n=chue_nod_mat)
+                else:
+                    chue_nod_mat = mc.shadingNode('aiStandard',asShader=1,n=chue_nod_mat)
+                
+                mc.setAttr(chue_nod_mat+'.'+attr[0],*mat.kd,typ='double3')
+                mc.setAttr(chue_nod_mat+'.'+attr[1],*mat.ks,typ='double3')
+                mc.setAttr(chue_nod_mat+'.'+attr[2],*opa,typ='double3')
+                mc.setAttr(chue_nod_mat+'.'+attr[3],0.75**(math.log(max(mat.ns,0.36788))+1))
+                mc.setAttr(chue_nod_mat+'.'+attr[4],min(mat.ns*0.01,1))
+                mc.setAttr(chue_nod_mat+'.'+attr[5],0.8)
             
             i_tex = mat.tex # ดัชนีของเท็กซ์เจอร์ที่จะใช้ใส่วัสดุนี้
             if(i_tex>=0):
-                chue_node_file = list_chue_node_file[i_tex] # โหนดไฟล์เท็กซ์เจอร์
-                mc.connectAttr(chue_node_file+'.outColor',chue_node_mat+'.color') # เชื่อมต่อสีจากไฟล์เข้ากับวัสดุ
+                chue_nod_file = list_chue_nod_file[i_tex] # โหนดไฟล์เท็กซ์เจอร์
+                # เชื่อมต่อสีจากไฟล์เข้ากับวัสดุ
+                if(vers and watsadu==4):
+                    mc.connectAttr(chue_nod_file+'.outColor',chue_nod_mat+'.baseColor')
+                else:
+                    mc.connectAttr(chue_nod_file+'.outColor',chue_nod_mat+'.color')
                 # ถ้าเลือกว่าจะทำอัลฟาแม็ปด้วย และไฟล์มีอัลฟาแม็ป
-                if(ao_alpha_map and mc.getAttr(chue_node_file+'.fileHasAlpha')==1):
+                if(ao_alpha_map and mc.getAttr(chue_nod_file+'.fileHasAlpha')==1):
                     if(xdata.tex[i_tex].split('.')[-1].lower() in ['png','tga','dds','bmp']):
                         if(watsadu in [1,2,3]):
-                            mc.connectAttr(chue_node_file+'.outTransparency',chue_node_mat+'.transparency')
+                            mc.connectAttr(chue_nod_file_alpha+'.outTransparency',chue_nod_mat+'.transparency')
                         elif(watsadu==4):
-                            mc.connectAttr(chue_node_file+'.outAlpha',chue_node_mat+'.opacityR')
-                            mc.connectAttr(chue_node_file+'.outAlpha',chue_node_mat+'.opacityG')
-                            mc.connectAttr(chue_node_file+'.outAlpha',chue_node_mat+'.opacityB')
-            chue_node_sg = mc.sets(r=1,nss=1,em=1,n=chue_node_mat+'SG')
-            mc.connectAttr(chue_node_mat+'.outColor',chue_node_sg+'.surfaceShader', f=1)
-            list_chue_node_mat.append(chue_node_mat)
-            list_chue_node_sg.append(chue_node_sg)
+                            mc.connectAttr(chue_nod_file_alpha+'.outAlpha',chue_nod_mat+'.opacityR')
+                            mc.connectAttr(chue_nod_file_alpha+'.outAlpha',chue_nod_mat+'.opacityG')
+                            mc.connectAttr(chue_nod_file_alpha+'.outAlpha',chue_nod_mat+'.opacityB')
+            chue_nod_sg = mc.sets(r=1,nss=1,em=1,n=chue_nod_mat+'SG')
+            mc.connectAttr(chue_nod_mat+'.outColor',chue_nod_sg+'.surfaceShader', f=1)
+            list_chue_nod_mat.append(chue_nod_mat)
+            list_chue_nod_sg.append(chue_nod_sg)
     else:
         0
         
@@ -244,11 +270,11 @@ def sangkhuen(chue_tem_file,khanat=8,ao_alpha_map=1,yaek_poly=0,watsadu=1):
     # แยกกรณีระหว่างแยกกับไม่แยกโพลิกอน
     if(yaek_poly and watsadu):
         # ถ้าเลือกว่าจะแยกโพลิกอน
-        list_chue_node_poly = []
+        list_chue_nod_poly = []
         nap_na = 0
         nap_index = 0
         for i in range(n_mat):
-            chue_node_sg = list_chue_node_sg[i]
+            chue_nod_sg = list_chue_nod_sg[i]
             n_na_to_mat = list_n_na_to_mat[i]
             if(n_na_to_mat==0):
                 continue
@@ -289,31 +315,31 @@ def sangkhuen(chue_tem_file,khanat=8,ao_alpha_map=1,yaek_poly=0,watsadu=1):
             
             trans_fn = om.MFnTransform()
             trans_obj = trans_fn.create()
-            chue_node_poly = chue_model+'_%d'%(i+1)
-            while(mc.objExists(chue_node_poly)):
-                chue_node_poly += u'_'
-            trans_fn.setName(chue_node_poly)
-            chue_node_poly = trans_fn.name()
+            chue_nod_poly = chue_model+'_%d'%(i+1)
+            while(mc.objExists(chue_nod_poly)):
+                chue_nod_poly += u'_'
+            trans_fn.setName(chue_nod_poly)
+            chue_nod_poly = trans_fn.name()
             fn_mesh = om.MFnMesh()
             
             # สร้างโพลิกอน
             fn_mesh.create(n_chut_to_mat,n_na_to_mat,chut,array_n_chut_to_na,index_chut,u,v,trans_obj)
             
-            fn_mesh.setName(chue_node_poly+'Shape')
+            fn_mesh.setName(chue_nod_poly+'Shape')
             fn_mesh.assignUVs(array_n_chut_to_na,index_chut)
             
             # ทำให้โปร่งใสได้ สำหรับอาร์โนลด์
             if(watsadu==4):
-                mc.setAttr(chue_node_poly+'.aiOpaque',0)
+                mc.setAttr(chue_nod_poly+'.aiOpaque',0)
             
             # ใส่วัสดุให้กับผิว
-            mc.sets(chue_node_poly+'.f[0:%s]'%(n_na_to_mat-1),fe=chue_node_sg)
-            list_chue_node_poly.append(chue_node_poly)
+            mc.sets(chue_nod_poly+'.f[0:%s]'%(n_na_to_mat-1),fe=chue_nod_sg)
+            list_chue_nod_poly.append(chue_nod_poly)
             
             nap_na += n_na_to_mat # นับไล่หน้าต่อ
             nap_index += n_index_to_mat
             
-        chue_node_poly = mc.group(list_chue_node_poly,n=chue_model)
+        chue_nod_poly = mc.group(list_chue_nod_poly,n=chue_model)
     else:
         # ถ้าไม่ได้เลือกว่าจะแยกโพลิกอน
         n_chut = len(xdata.posizioni_vertici) # จำนวนจุดยอดของโมเดล
@@ -347,27 +373,28 @@ def sangkhuen(chue_tem_file,khanat=8,ao_alpha_map=1,yaek_poly=0,watsadu=1):
         trans_fn = om.MFnTransform()
         trans_obj = trans_fn.create()
         trans_fn.setName(chue_model)
-        chue_node_poly = trans_fn.name()
+        chue_nod_poly = trans_fn.name()
         fn_mesh = om.MFnMesh()
         
         # สร้างโพลิกอนจากข้อมูลทั้งหมดที่เตรียมไว้
         fn_mesh.create(n_chut,n_na,chut,array_n_chut_to_na,index_chut,u,v,trans_obj)
-        fn_mesh.setName(chue_node_poly+'Shape')
+        fn_mesh.setName(chue_nod_poly+'Shape')
         fn_mesh.assignUVs(array_n_chut_to_na,index_chut)
         
         # ทำให้โปร่งใสได้ สำหรับอาร์โนลด์
         if(watsadu==4):
-            mc.setAttr(chue_node_poly+'.aiOpaque',0)
+            mc.setAttr(chue_nod_poly+'.aiOpaque',0)
         
         # ใส่วัสดุ ถ้าเลือกว่าจะเอาสีผิว
         if(watsadu):
             nap_na = 0
             for i in range(n_mat):
-                chue_node_sg = list_chue_node_sg[i]
-                mc.sets(chue_node_poly+'.f[%s:%s]'%(nap_na,nap_na+n_na-1),fe=chue_node_sg) # ใส่วัสดุให้กับผิวตามหน้าที่กำหนด
-                nap_na += list_n_na_to_mat[i] # นับไล่หน้าต่อ
+                if(i in set_mat):
+                    chue_nod_sg = list_chue_nod_sg[i]
+                    mc.sets(chue_nod_poly+'.f[%s:%s]'%(nap_na,nap_na+n_na-1),fe=chue_nod_sg) # ใส่วัสดุให้กับผิวตามหน้าที่กำหนด
+                    nap_na += list_n_na_to_mat[i] # นับไล่หน้าต่อ
         else: # ถ้าไม่เอาสีผิวก็ป้อนวัสดุตั้งต้นให้
-            mc.select(chue_node_poly)
+            mc.select(chue_nod_poly)
             mc.hyperShade(a='lambert1')
     
-    return chue_node_poly
+    return chue_nod_poly

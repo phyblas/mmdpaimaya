@@ -48,7 +48,7 @@ def cross(a,b):
     return c
 
 khokhwam = [
-    [u'~ MMD ไป Maya ~',u'~ MMD パイ Maya ~',u'~ MMD 摆 Maya ~'],
+    [u'~ MMD ไป Maya ~',u'~ MMD パイ Maya ~',u'~ MMD 掰 Maya ~'],
     [u'ไฟล์',u'ファイル',u'文档'],
     [u'ขนาด',u'尺度',u'尺度'],
     [u'แยกโพลิกอนตามวัสดุ',u'材質ごとにポリゴンを分割する',u'按照不同的材质将多边形分开'],
@@ -60,7 +60,36 @@ khokhwam = [
     [u'ไม่ทำเลย',u'作らない',u'不做'],
     [u'เลือกทำ',u'部分選択',u'部分选择'],
     [u'ทำทั้งหมด',u'全部',u'全部'],
+    [u'สร้างไฟล์ภาพค่า alpha แยก (ต้องมี PIL)',u'alpha値の画像ファイルを別に作る（PILが必要）',u'分别做alpha值的图片文档（需要PIL）'],
     [u'เริ่มสร้าง',u'始めよう',u'开始'],
     [u'~ เลือกว่าวัสดุไหนจะเอา alpha map ~',u'alpha mapを作る材質を決めて',u'决定哪个材料要做alpha map'],
-    [u'เสร็จสิ้น',u'終わり',u'完成']
+    [u'เสร็จสิ้น',u'終わり',u'完成'],
+    [u'ชื่อไฟล์',u'ファイル名',u'文档名'],
+    [u'สร้าง morph',u'モーフも作る',u'做morph'],
+    [u'ใช้วัสดุ',u'材質を使う',u'不用材质'],
+    [u'คัดลอกเท็กซ์เจอร์',u'テクスチャをコピーする',u'拷贝贴图'],
+    [u'โหมดของ sph',u'sphモード',u'sph模式'],
+    [u'ไฟล์ sph',u'sphファイル',u'sph文档名'],
+    [u'เริ่มสร้าง pmx',u'pmxを作る',u'开始做 pmx'],
+]
+
+chueam_placed2d = [
+    ['coverage','coverage'],
+    ['translateFrame','translateFrame'],
+    ['rotateFrame','rotateFrame'],
+    ['mirrorU','mirrorU'],
+    ['mirrorV','mirrorV'],
+    ['stagger','stagger'],
+    ['wrapU','wrapU'],
+    ['wrapV','wrapV'],
+    ['repeatUV','repeatUV'],
+    ['offset','offset'],
+    ['rotateUV','rotateUV'],
+    ['noiseUV','noiseUV'],
+    ['vertexUvOne','vertexUvOne'],
+    ['vertexUvTwo','vertexUvTwo'],
+    ['vertexUvThree','vertexUvThree'],
+    ['vertexCameraOne','vertexCameraOne'],
+    ['outUV','uv'],
+    ['outUvFilterSize','uvFilterSize'],
 ]
