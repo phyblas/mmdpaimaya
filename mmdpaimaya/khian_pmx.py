@@ -35,6 +35,9 @@ def khiankhuen(chue_tem_file='',khanat_ok=0.125,chai_kraduk=1,chai_bs=1,chai_wat
     list_chue_nod_shep = []
     list_chue_nod_skin = []
     list_matrix_mun = [0]
+    if(list_chue_nod_poly==None): # กรณีที่ไม่ได้เลือกโพลิกอนไว้เลย
+        print(u'ポリゴンは選択せれていません')
+        return
     
     for chue_nod_poly in list_chue_nod_poly:
         # โหนดรูปร่างของโพลิกอนนั้นๆ
@@ -141,15 +144,11 @@ def khiankhuen(chue_tem_file='',khanat_ok=0.125,chai_kraduk=1,chai_bs=1,chai_wat
     
     
     list_tamnaeng = []
-    list_lek_tamnaeng = []
     list_norm = []
-    list_lek_norm = []
     list_u = []
     list_v = []
-    list_lek_uv = []
     
     list_lek_tamnaeng_nai_na = []
-    list_lek_tamnaeng_nai_samliam = []
     list_na_to_poly = []
     list_chut_to_poly = []
     
@@ -159,7 +158,6 @@ def khiankhuen(chue_tem_file='',khanat_ok=0.125,chai_kraduk=1,chai_bs=1,chai_wat
     
     list_lek_chut_mai = []
     dic_str_chut = {}
-    list_samliam = []
     lai_lek = 0
     
     list_chue_nod_bs = mc.ls(typ='blendShape')
@@ -212,9 +210,13 @@ def khiankhuen(chue_tem_file='',khanat_ok=0.125,chai_kraduk=1,chai_bs=1,chai_wat
                 # ดูว่านี่เป็นโพลิกอนที่เชื่อมอยู่กับเบลนด์เชปอันนี้หรือเปล่า
                 if(chue_nod_shep not in mc.blendShape(chue_nod_bs,q=1,g=1)):
                     continue
-                ww = mc.getAttr(chue_nod_bs+'.w[*]') # เก็บค่าน้ำหนักปัจจุบันไว้
+                print(chue_nod_bs)
+                try: # try เพื่อกันกรณีที่มีโหนดเบลนด์เชปอยู่แต่ไม่มีเบลนด์เชปอยู่เลย
+                    ww = mc.getAttr(chue_nod_bs+'.w[*]') # เก็บค่าน้ำหนักปัจจุบันไว้
+                except:
+                    continue
                 if(type(ww)==float):
-                    ww = [ww] # กันกรณีที่มีอยู่แค่ตัวเดียว จะได้ค่าไม่เป็นลิสต์ ต้องทำให้เป็นลิสต์เหมือนกันหมด
+                    ww = [ww] # เพื่อกันกรณีที่มีอยู่แค่ตัวเดียว จะได้ค่าไม่เป็นลิสต์ ต้องทำให้เป็นลิสต์เหมือนกันหมด
                 w.append(ww)
                 mc.setAttr(chue_nod_bs+'.w[*]',*[0]*len(ww)) # ตั้งน้ำหนักให้เป็น 0 ไว้ก่อน
                 list_chue_nod_bs_ni.append(chue_nod_bs)
@@ -283,7 +285,6 @@ def khiankhuen(chue_tem_file='',khanat_ok=0.125,chai_kraduk=1,chai_bs=1,chai_wat
         
         n_bs = len(list_chue_bs)
         list_lek_chut_mai_to_poly = []
-        samliam_nai_poly = []
         i = 0
         for samliam_to_na,chut_to_na in zip(list_samliam_to_na,list_chut_to_na):
             dic_lai_lek = {}
@@ -300,7 +301,7 @@ def khiankhuen(chue_tem_file='',khanat_ok=0.125,chai_kraduk=1,chai_bs=1,chai_wat
                     dic_str_chut[str_chut] = lek_chut_mai
                     
                     #ถ้ามีเชื่อมสกินอยู่ก็ดึงน้ำหนักมาใช้
-                    if(list_chue_nod_skin):
+                    if(chai_kraduk and chue_nod_skin):
                         w = [] # ลิสต์เก็บทูเพิลของ (ดัชนีข้อ,ค่าน้ำหนัก)
                         # ดึงข้อมูลน้ำหนักจากลิสต์น้ำหนัก ความยาวเท่ากับจำนวนข้อ
                         for i_namnak,namnak in enumerate(list_namnak[lek_tamnaeng*n_kho:(lek_tamnaeng+1)*n_kho]):
