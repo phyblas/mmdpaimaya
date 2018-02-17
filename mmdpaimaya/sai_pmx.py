@@ -22,7 +22,7 @@ def an_model(chue_tem_file):
         mmddata = pymeshio.pmd.reader.read_from_file(chue_tem_file)
         mmddata = pymeshio.converter.pmd_to_pmx(mmddata)
     else:
-        print('ไฟล์ต้องเป็นชนิด pmx หรือ pmd เท่านั้น')
+        print('pmxとpmdファイルしか使用できません')
         raise
     return mmddata
 
@@ -40,7 +40,7 @@ def sang_poly(chue_tem_file,mmddata,khanat=8,ao_alpha_map=1,yaek_poly=0,watsadu=
     chue_model = romaji(chuedidi(mmddata.name,os.path.splitext(chue_file)[0]))
     vers = int(mc.about(version=1))>=2018 # เวอร์ชันเป็น 2018 ขึ้นไปหรือไม่
     
-    print(u'สร้างพื้นผิว')
+    print(u'面を作成中')
     if(yaek_poly):
         # ถ้าเลือกว่าจะแยกโพลิกอนก็ยังไม่ต้องทำอะไร
         list_chue_nod_poly = []
@@ -348,7 +348,7 @@ def sang_poly(chue_tem_file,mmddata,khanat=8,ao_alpha_map=1,yaek_poly=0,watsadu=
     return chue_nod_poly,list_mat_mi_alpha
 
 def sang_bs(mmddata,chue_nod_poly,khanat):
-    print(u'สร้าง blend shape')
+    print(u'blend shapeを作成中')
     list_chue_nod_bs = [[],[],[],[]] # ลิสต์เก็บชื่อโหนดเบลนด์เชปแต่ละหมวด (คิ้ว, ตา, ปาก, อื่นๆ)
     list_chue_bs_doem = [[],[],[],[]] # ลิสต์เก็บชื่อเดิม (ชื่อญี่ปุ่น) ของเบลนด์เชปแต่ละหมวด
     list_panel = [[],[],[],[]] # ลิสต์เก็บเลขแสดงแผง เก็บไว้เผื่อใช้ตอนแปลงกลับ
@@ -380,7 +380,7 @@ def sang_bs(mmddata,chue_nod_poly,khanat):
             list_chue_bs_doem[mo.panel-1].append(chuedidi(mo.name,chue_bs))
             list_panel[mo.panel-1].append(mo.panel)
         else:
-            print(u'~! morph '+chuedidi(mo.name)+u' ไม่สามารถสร้าง blend shape ได้')
+            print(u'~! morph '+chuedidi(mo.name)+u'はblend shapeを作れません')
     
     # รวมเป็นลิสต์เดียวต่อเนื่องกัน เรียงตามหมวดหมู่
     list_chue_nod_bs = list(itertools.chain(*list_chue_nod_bs))
@@ -398,7 +398,7 @@ def sang_bs(mmddata,chue_nod_poly,khanat):
 
 # สร้างกระดูก
 def sang_kraduk(mmddata,chue_nod_poly,khanat,ao_ik):
-    print(u'สร้างกระดูก')
+    print(u'骨を作成中')
     list_chue_nod_kho = [] # ลิสต์เก็บชื่อของโหนดข้อ
     for i,b in enumerate(mmddata.bones):
         # แก้ชื่อข้อต่อให้เป็นโรมาจิ
@@ -605,5 +605,5 @@ def sangkhuen(chue_tem_file,khanat,yaek_poly=0,ao_bs=1,ao_kraduk=1,ao_ik=0,watsa
         if(ao_kraduk):
             mc.select(list_chue_nod_nok)
     
-    print(u'สร้างเสร็จเรียบร้อย ใช้เวลาไป %.2f วินาที'%(time.time()-t_roem))
+    print(u'作成完了。%.2fかかりました'%(time.time()-t_roem))
     return chue_nod_poly,list_mat_mi_alpha

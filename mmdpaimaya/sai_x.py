@@ -4,7 +4,7 @@ u'''
 '''
 
 import maya.cmds as mc
-import sys,os,math,re
+import sys,os,math,re,time
 import maya.OpenMaya as om
 from mmdpaimaya.chipatha import romaji,chuedidi,chueam_placed2d
 
@@ -127,6 +127,7 @@ class Xdata:
     
 
 def sangkhuen(chue_tem_file,khanat=8,ao_alpha_map=1,yaek_poly=0,watsadu=1,yaek_alpha=0):
+    t_roem = time.time() # เริ่มจับเวลา
     chue_model = romaji(chuedidi(os.path.splitext(os.path.basename(chue_tem_file))[0]))
     path_file = os.path.dirname(chue_tem_file)
     xdata = Xdata(chue_tem_file)
@@ -397,4 +398,5 @@ def sangkhuen(chue_tem_file,khanat=8,ao_alpha_map=1,yaek_poly=0,watsadu=1,yaek_a
             mc.select(chue_nod_poly)
             mc.hyperShade(a='lambert1')
     
+    print(u'作成完了。%.2fかかりました'%(time.time()-t_roem))
     return chue_nod_poly

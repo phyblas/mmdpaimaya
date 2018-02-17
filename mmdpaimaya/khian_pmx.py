@@ -472,7 +472,7 @@ def khiankhuen(chue_tem_file='',khanat_ok=0.125,chai_kraduk=1,chai_bs=1,chai_wat
                             kw['texture_index'] = i_tex
                             i_tex += 1 # นับไล่ดัชนีเท็กซ์เจอร์ต่อ
                     else:
-                        print(u'เท็กซ์เจอร์ %s ไม่ใช่ไฟล์ ไม่สามารถใช้ได้'%chue_nod_tex[0])
+                        print(u'テクスチャ%sはファイルではないため使えません'%chue_nod_tex[0])
                     dc = [1.,1.,1.]
                 # ถ้าไม่ใช้เท็กซ์เจอร์ไฟล์จึงกำหนดสีผิว
                 else:
@@ -506,7 +506,7 @@ def khiankhuen(chue_tem_file='',khanat_ok=0.125,chai_kraduk=1,chai_bs=1,chai_wat
                     kw['specular_factor'] = round(math.pow(2,math.log(sr,0.75)-1))
                     kw['ambient_color'] = common.RGB(0,0,0)
             except:
-                print u'พบปัญหาบางอย่างในวัสดุ '+mat
+                print u'材質%sに問題が見つかりました'%mat
             
             model_mat_ap(pmx.Material(**kw)) # เพิ่มวัสดุเข้าไปในโมเดล
             
@@ -548,4 +548,4 @@ def khiankhuen(chue_tem_file='',khanat_ok=0.125,chai_kraduk=1,chai_bs=1,chai_wat
         pmxwri(s,model)
     mc.select(list_chue_nod_poly)
     
-    print(u'ファイル%s作成完了\n%.2f秒かかった'%(chue_tem_file,time.time()-t0))
+    print(u'ファイル%s作成完了。%.2f秒かかりました'%(chue_tem_file,time.time()-t0))
