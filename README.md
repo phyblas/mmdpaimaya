@@ -51,7 +51,7 @@ natang_sang = natang.roem()
 
 หากโค้ดใช้งานได้ไม่มีปัญหาอะไรก็จะมีหน้าต่างขึ้นมาดังนี้
 
-![](http://i271.photobucket.com/albums/jj153/phyblas/yami/2018/a01.png)
+![](https://phyblas.hinaboshi.com/rup/yami/2018/a01.png)
 
 เมื่อเริ่มหน้าต่างโปรแกรมขึ้นมาจะเห็นว่าด้านบนมีอยู่สองแท็บให้เลือก แท็บซ้ายสำหรับนำเข้าข้อมูลจาก MMD มา Maya ส่วนแท็บขวาสำหรับส่งออกโมเดลใน Maya ไปเป็น .pmx
 
@@ -82,7 +82,7 @@ natang_sang = natang.roem()
 
 เทียบขนาด 8x|1x|0.08x
 
-![](http://i271.photobucket.com/albums/jj153/phyblas/yami/2017/d02.jpg)
+![](https://phyblas.hinaboshi.com/rup/yami/2017/d02.jpg)
 
 ([Tda式初音ミク デフォ服ver](https://bowlroll.net/file/16344))
 
@@ -103,7 +103,7 @@ natang_sang = natang.roem()
 
 ตัวอย่าง ดาบในภาพนี้สามารถแยกโพลิกอนส่วนที่เป็นตัวดาบกับปลอกดาบออกมาจากกันได้อย่างง่ายดาย
 
-![](http://i271.photobucket.com/albums/jj153/phyblas/yami/2017/d08.jpg)
+![](https://phyblas.hinaboshi.com/rup/yami/2017/d08.jpg)
 
 ([法の剣](http://seiga.nicovideo.jp/seiga/im3129714))
 
@@ -128,7 +128,7 @@ natang_sang = natang.roem()
 
 ตัวอย่าง ปรับปากและตากับคิ้วให้มิกุยิ้มได้
 
-![](http://i271.photobucket.com/albums/jj153/phyblas/yami/2017/d12.png)
+![](https://phyblas.hinaboshi.com/rup/yami/2017/d12.png)
 
 ([ゆきはね式ミク　イージスβ2](https://bowlroll.net/file/12207))
 
@@ -137,7 +137,7 @@ natang_sang = natang.roem()
 ### สร้างกระดูกและ IK
 สำหรับโมเดลที่เป็นตัวละครจำเป็นจะต้องมีกระดูกเพื่อใช้ในการเคลื่อนไหวร่างกาย
 
-![](http://i271.photobucket.com/albums/jj153/phyblas/yami/2017/d04.jpg)
+![](https://phyblas.hinaboshi.com/rup/yami/2017/d04.jpg)
 
 ([Racing Miku 2015](http://digitrevx.deviantart.com/art/Princess-Knight-Racing-Miku-2015-MMD-530215264))
 
@@ -168,7 +168,7 @@ natang_sang = natang.roem()
 
 กรณีที่เลือกไม่ใส่วัสดุก็จะได้โมเดลที่ใส่สีมาตรฐานให้ทั้งตัว ดูแล้วอาจคล้ายรูปปั้นหิน
 
-![](http://i271.photobucket.com/albums/jj153/phyblas/yami/2017/d05.jpg)
+![](https://phyblas.hinaboshi.com/rup/yami/2017/d05.jpg)
 
 ([Animasa X Pikadude 初音ミク](http://seiga.nicovideo.jp/seiga/im4222520))
 
@@ -187,7 +187,7 @@ natang_sang = natang.roem()
 
 ตัวอย่าง เช่นโมเดลอันนี้ เทียบภาพระหว่างทำอัลฟาแม็ปกับไม่ได้ทำ
 
-![](http://i271.photobucket.com/albums/jj153/phyblas/yami/2017/d06.jpg)
+![](https://phyblas.hinaboshi.com/rup/yami/2017/d06.jpg)
 
 ([初音オミク２回目修正版](https://bowlroll.net/file/18038))
 
@@ -219,7 +219,7 @@ natang_sang = natang.roem()
 # แท็บ maya > mmd
 สำหรับแปลงโมเดลที่อยู่ใน maya ออกมาเป็นไฟล์ .pmx
 
-![](http://i271.photobucket.com/albums/jj153/phyblas/yami/2018/a02.png)
+![](https://phyblas.hinaboshi.com/rup/yami/2018/a02.png)
 
 ### ปรับขนาด
 ในทางตรงกันข้ามกับตอนนำเข้าโมเดล สำหรับการส่งออกนั้นหากใช้หน่วยเป็น ซม. ก็ควรใส่เป็น 0.125 ถ้าใช้หน่วยเมตรก็ใส่ 12.5
@@ -256,7 +256,7 @@ natang_sang = natang.roem()
 
 สำหรับกรณีที่เจอข้อผิดพลาดขณะอ่านไฟล์ pmd หรือ pmx แล้วขึ้นว่า "extended uv is not supported" ให้เอาไฟล์มาเปิดใน pmd editor แล้วดูที่ช่อง 追加UV数 ถ้าไม่ใช่ 0 ให้ปรับเป็น 0
 
-![](http://i271.photobucket.com/albums/jj153/phyblas/yami/2018/a03.png)
+![](https://phyblas.hinaboshi.com/rup/yami/2018/a03.png)
 
 สำหรับในส่วนของการสร้างไฟล์ pmx บางครั้งไฟล์ที่ได้ออกมาหากนำไปเปิดใน MMD ทันทีแล้วจะมีปัญหาขึ้นมา สามารถแก้ได้ด้วยการนำไปเปิดใน pmd editor แล้วบันทึกทับไปใหม่
 
