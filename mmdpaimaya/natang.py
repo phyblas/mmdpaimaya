@@ -413,7 +413,7 @@ class Natangsang(QWidget):
         self.close()
         # เปิดหน้าต่างสำหรับคัดเลือกวัสดุที่จะทำอัลฟาแม็ป
         if(yuthaep==0 and list_mat_mi_alpha and ao_alpha_map==1):
-            self.natangmai = Natang_alpha(chue_file,list_mat_mi_alpha,phasa)
+            self.natangmai = Natang_alpha(chue_file,list_mat_mi_alpha,watsadu,phasa)
             self.natangmai.show()
     
     # เมื่อกดปุ่มค้นไฟล์
@@ -458,10 +458,11 @@ class Natangsang(QWidget):
 
 # หน้าต่างคัดเลือกวัสดุที่จะเอาอัลฟาแม็ป
 class Natang_alpha(QWidget):
-    def __init__(self,chue_file,list_mat_mi_alpha,ps=0):
+    def __init__(self,chue_file,list_mat_mi_alpha,watsadu,ps=0):
         QWidget.__init__(self,None,Qt.WindowStaysOnTopHint)
         self.chue_file = chue_file
         self.list_mat_mi_alpha = list_mat_mi_alpha
+        self.watsadu = watsadu
         self.setWindowTitle(khokhwam[14][ps])
         self.khronglak = QVBoxLayout()
         self.setLayout(self.khronglak)
@@ -492,16 +493,28 @@ class Natang_alpha(QWidget):
     def chueam_alpha(self,i):
         mat = self.list_mat_mi_alpha[i-1][0]
         list_connect = mc.listConnections(mat,c=1,p=1)
-        tex = list_connect[list_connect.index(mat+'.color')+1].replace('.outColor','')
-        #mc.select(mc.sets(mat+'SG',q=1))
+        try:
+            tex = list_connect[list_connect.index(mat+'.color')+1].replace('.outColor','')
+        except:
+            tex = list_connect[list_connect.index(mat+'.baseColor')+1].replace('.outColor','')
         if(self.klum_tick_bs.button(i).isChecked()):
             # ติ๊กเอา ให้ทำการเชื่อมต่อ
-            mc.connectAttr(tex+'.outTransparency',mat+'.transparency')
-            print(u'เชื่อม %s กับ %s'%(mat,tex))
+            if(self.watsadu!=4):
+                mc.connectAttr(tex+'.outTransparency',mat+'.transparency')
+            else:
+                mc.connectAttr(tex+'.outAlpha',mat+'.opacityR')
+                mc.connectAttr(tex+'.outAlpha',mat+'.opacityG')
+                mc.connectAttr(tex+'.outAlpha',mat+'.opacityB')
+            print(u'%sと%sを繋ぐ'%(mat,tex))
         else:
             # ติ๊กไม่เอา ให้ตัดการเชื่อมต่อ
-            mc.disconnectAttr(tex+'.outTransparency',mat+'.transparency')
-            print(u'ตัดการเชื่อม %s กับ %s'%(mat,tex))
+            if(self.watsadu!=4):
+                mc.disconnectAttr(tex+'.outTransparency',mat+'.transparency')
+            else:
+                mc.disconnectAttr(tex+'.outAlpha',mat+'.opacityR')
+                mc.disconnectAttr(tex+'.outAlpha',mat+'.opacityG')
+                mc.disconnectAttr(tex+'.outAlpha',mat+'.opacityB')
+            print(u'%sから%sを外す'%(mat,tex))
     
     # เสร็จสิ้นการเลือกวัสดุที่จะเอาอัลฟา บันทึกข้อมูลใส่ไฟล์
     def setsin(self):
