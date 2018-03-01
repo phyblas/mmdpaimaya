@@ -1,1 +1,3 @@
-คู่มือการใช้เป็นภาษาไทยอ่านได้ที่ https://github.com/phyblas/mmdpaimaya/blob/master/คู่มือการใช้.md
+MMDのモデルをmayaの中にインポートしたり、mayaで作られたモデルをMMDモデルファイル(.pmx)に変換するスクリプトです。
+
+![](https://phyblas.hinaboshi.com/rup/yami/2018/a04.jpg)
