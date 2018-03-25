@@ -62,7 +62,7 @@ class Natangsang(QWidget):
             ao_alpha_map = 2
             yaek_alpha = 0
             chue_file_mmd = ''
-            khanat_ok = 0.125
+            khanat_ok = '0.125'
             chai_kraduk = 1
             chai_bs = 1
             chai_watsadu = 1
