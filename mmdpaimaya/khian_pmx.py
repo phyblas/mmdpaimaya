@@ -169,7 +169,7 @@ def khiankhuen(chue_tem_file='',khanat_ok=0.125,chai_kraduk=1,chai_bs=1,chai_wat
             nod_shep = pm.PyNode(chue_nod_shep)
         except pm.MayaNodeError:
             print(u'特殊なポリゴンが含まれる可能性があります。オブジェクトのヒストリを削除してください')
-            raise
+            raise # กรณีที่เป็นโพลิกอนที่สร้างมาจากวิธีที่เหนือความคาดหมายอาจมีข้อผิดพลาด แก้ได้โดยลบประวัติศาสตร์
         
         if(chai_kraduk):
             chue_nod_skin = list_chue_nod_skin[i_poly]
@@ -214,7 +214,6 @@ def khiankhuen(chue_tem_file='',khanat_ok=0.125,chai_kraduk=1,chai_bs=1,chai_wat
                 # ดูว่านี่เป็นโพลิกอนที่เชื่อมอยู่กับเบลนด์เชปอันนี้หรือเปล่า
                 if(chue_nod_shep not in mc.blendShape(chue_nod_bs,q=1,g=1)):
                     continue
-                print(chue_nod_bs)
                 try: # try เพื่อกันกรณีที่มีโหนดเบลนด์เชปอยู่แต่ไม่มีเบลนด์เชปอยู่เลย
                     ww = mc.getAttr(chue_nod_bs+'.w[*]') # เก็บค่าน้ำหนักปัจจุบันไว้
                 except:
@@ -511,7 +510,7 @@ def khiankhuen(chue_tem_file='',khanat_ok=0.125,chai_kraduk=1,chai_bs=1,chai_wat
                     kw['specular_factor'] = round(math.pow(2,math.log(sr,0.75)-1))
                     kw['ambient_color'] = common.RGB(0,0,0)
             except:
-                print u'材質%sに問題が見つかりました'%mat
+                print(u'材質%sに問題が見つかりました'%mat)
             
             model_mat_ap(pmx.Material(**kw)) # เพิ่มวัสดุเข้าไปในโมเดล
             
