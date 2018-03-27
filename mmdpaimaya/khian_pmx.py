@@ -165,7 +165,11 @@ def khiankhuen(chue_tem_file='',khanat_ok=0.125,chai_kraduk=1,chai_bs=1,chai_wat
     i_poly = 0 # โพลิกอนอันที่เท่าไหร่
     for chue_nod_poly in list_chue_nod_poly:
         chue_nod_shep = list_chue_nod_shep[i_poly]
-        nod_shape = pm.PyNode(chue_nod_shep)
+        try:
+            nod_shep = pm.PyNode(chue_nod_shep)
+        except pm.MayaNodeError:
+            print(u'特殊なポリゴンが含まれる可能性があります。オブジェクトのヒストリを削除してください')
+            raise
         
         if(chai_kraduk):
             chue_nod_skin = list_chue_nod_skin[i_poly]
@@ -183,15 +187,15 @@ def khiankhuen(chue_tem_file='',khanat_ok=0.125,chai_kraduk=1,chai_bs=1,chai_wat
                 fn_skin = oma.MFnSkinCluster(obj_skin)
                 path_mesh = om.MDagPath()
                 sl = om.MSelectionList()
-                sl.add(nod_shape.fullPath())
+                sl.add(nod_shep.fullPath())
                 sl.getDagPath(0,path_mesh)
-                nod_shape.fullPath()
+                nod_shep.fullPath()
                 path_inf = om.MDagPathArray()
                 n_inf = fn_skin.influenceObjects(path_inf)
                 util = om.MScriptUtil()
                 util.createFromList(range(n_inf),n_inf)
                 id_inf = om.MIntArray(util.asIntPtr(),n_inf)
-                n_vert = nod_shape.numVertices()
+                n_vert = nod_shep.numVertices()
                 fn_comp = om.MFnSingleIndexedComponent()
                 components = fn_comp.create(om.MFn.kMeshVertComponent)
                 util = om.MScriptUtil()
@@ -222,23 +226,23 @@ def khiankhuen(chue_tem_file='',khanat_ok=0.125,chai_kraduk=1,chai_bs=1,chai_wat
                 list_chue_nod_bs_ni.append(chue_nod_bs)
         
         # เก็บค่าตำแหน่งจุด
-        tamnaeng = nod_shape.getPoints(space='world')
+        tamnaeng = nod_shep.getPoints(space='world')
         list_tamnaeng.extend(tamnaeng)
-        list_chut_to_na,vertid = nod_shape.getVertices()
+        list_chut_to_na,vertid = nod_shep.getVertices()
         chut_to_poly = len(vertid)
         
         # เก็บค่าเส้นตั้งฉาก
-        norm = nod_shape.getNormals(space='world')
+        norm = nod_shep.getNormals(space='world')
         list_norm.extend(norm)
-        normid = nod_shape.getNormalIds()[1]
+        normid = nod_shep.getNormalIds()[1]
         
         # เก็บค่า uv
-        u,v = nod_shape.getUVs()
+        u,v = nod_shep.getUVs()
         list_u.extend(u)
         list_v.extend(v)
-        uvid = nod_shape.getAssignedUVs()[1]
+        uvid = nod_shep.getAssignedUVs()[1]
         
-        list_samliam_to_na,list_lek_chut = nod_shape.getTriangles()
+        list_samliam_to_na,list_lek_chut = nod_shep.getTriangles()
         list_lek_tamnaeng_nai_na_to_poly = []
         lai_samliam = 0
         
@@ -265,7 +269,7 @@ def khiankhuen(chue_tem_file='',khanat_ok=0.125,chai_kraduk=1,chai_bs=1,chai_wat
                     ww[i] = 1
                     mc.setAttr(chue_nod_bs+'.w[*]',*ww)
                     # ดึงข้อมูลตำแหน่งที่เลื่อนแล่้ว
-                    tamnaeng_bs = nod_shape.getPoints(space='world')
+                    tamnaeng_bs = nod_shep.getPoints(space='world')
                     list_tamnaeng_bs.append(tamnaeng_bs)
                     if(bs in dic_namae):
                         namae = dic_namae[bs].split(u'๑')
