@@ -168,8 +168,8 @@ def khiankhuen(chue_tem_file='',khanat_ok=0.125,chai_kraduk=1,chai_bs=1,chai_wat
         try:
             nod_shep = pm.PyNode(chue_nod_shep)
         except pm.MayaNodeError:
-            print(u'特殊なポリゴンが含まれる可能性があります。オブジェクトのヒストリを削除してください')
-            raise # กรณีที่เป็นโพลิกอนที่สร้างมาจากวิธีที่เหนือความคาดหมายอาจมีข้อผิดพลาด แก้ได้โดยลบประวัติศาสตร์
+            print(u'特殊なポリゴンが含まれる可能性があります。ポリゴンを結合しておいてください')
+            raise # กรณีที่เป็นโพลิกอนที่สร้างมาจากวิธีที่เหนือความคาดหมายอาจมีข้อผิดพลาด แก้ได้โดยรวมโพลิกอนที่มีปัญหา
         
         if(chai_kraduk):
             chue_nod_skin = list_chue_nod_skin[i_poly]
