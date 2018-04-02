@@ -5,7 +5,7 @@ u'''
 
 import re
 from pykakasi import kakasi
-from jctconv import h2z as hanzen, z2h as zenhan
+from jaconv import h2z as hanzen, z2h as zenhan
 
 # แก้ชื่อพยายามถอดยูนิโค้ดชนิดต่างๆเท่าท่จะทำได้
 def chuedidi(s,f=u''):
