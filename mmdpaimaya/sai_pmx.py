@@ -110,7 +110,7 @@ def sang_poly(chue_tem_file,mmddata,khanat=8,ao_alpha_map=1,yaek_poly=0,watsadu=
     list_chue_nod_file = [] # ลิสต์เก็บชื่อโหนดของไฟล์เท็กซ์เจอร์
     list_chue_nod_file_alpha = [] # ลิสต์เก็บชื่อโหนดของไฟล์อัลฟาของเท็กซ์เจอร์
     for i,tex in enumerate(mmddata.textures):
-        path_tem_tex = os.path.join(path_file,tex) # ไฟล์เท็กซ์เจอร์ เพิ่มพาธของไฟล์โมเดลลงไป
+        path_tem_tex = os.path.join(*([path_file]+tex.split('\\'))) # ไฟล์เท็กซ์เจอร์ เพิ่มพาธของไฟล์โมเดลลงไป
         chue_tex = tex.replace('\\','_').replace('/','_').replace('.','_')
         chue_tex = romaji(chue_tex) # เปลี่ยนชื่อเป็นโรมาจิ
         
