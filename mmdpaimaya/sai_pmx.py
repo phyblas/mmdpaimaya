@@ -38,7 +38,7 @@ def sang_poly(chue_tem_file,mmddata,khanat=8,ao_alpha_map=1,yaek_poly=0,watsadu=
     chue_file = os.path.basename(chue_tem_file) # ชื่อไฟล์ไม่รวมพาธ
     # ชื่อโมเดลเอาชื่อไฟล์มาตัดสกุลออกแล้วเปลี่ยนเป็นภาษาญี่ปุ่นเป็นโรมาจิให้หมด
     chue_model = romaji(chuedidi(mmddata.name,os.path.splitext(chue_file)[0]))
-    vers = int(mc.about(version=1))>=2018 # เวอร์ชันเป็น 2018 ขึ้นไปหรือไม่
+    vers = int(mc.about(version=1).split(' ')[0])>=2018 # เวอร์ชันเป็น 2018 ขึ้นไปหรือไม่
     
     print(u'面を作成中')
     if(yaek_poly):
