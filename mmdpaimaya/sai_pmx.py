@@ -54,7 +54,10 @@ def sang_poly(chue_tem_file,mmddata,khanat=8,ao_alpha_map=1,yaek_poly=0,watsadu=
         for i,c in enumerate(mmddata.vertices):
             # ตั้งค่าตำแหน่งของจุดยอด
             p = c.position
-            p = om.MFloatPoint(p.x*khanat,p.y*khanat,-p.z*khanat)
+            try:
+                p = om.MFloatPoint(p.x*khanat,p.y*khanat,-p.z*khanat)
+            except: # ถ้ามีค่าใหญ่เกินไปจะเกิดข้อผิดพลาดได้ ให้เป็น 0 ไปแทน
+                p = om.MFloatPoint(0,0,0)
             chut.set(p,i)
             # ตั้งค่า uv
             u[i] = c.uv.x
@@ -191,7 +194,7 @@ def sang_poly(chue_tem_file,mmddata,khanat=8,ao_alpha_map=1,yaek_poly=0,watsadu=
             if(watsadu==1):
                 chue_nod_mat = mc.shadingNode('blinn',asShader=1,n=chue_nod_mat)
                 mc.setAttr(chue_nod_mat+'.specularColor',*spec,typ='double3')
-                mc.setAttr(chue_nod_mat+'.specularRollOff',0.75**(math.log(max(sf,2**-10),2)+1))
+                mc.setAttr(chue_nod_mat+'.specularRollOff',min(0.75**(math.log(max(sf,2**-10),2)+1),1))
                 mc.setAttr(chue_nod_mat+'.eccentricity',sf*0.01)
             elif(watsadu==2):
                 chue_nod_mat = mc.shadingNode('phong',asShader=1,n=chue_nod_mat)
