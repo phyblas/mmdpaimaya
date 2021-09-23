@@ -8,6 +8,11 @@ MMDのモデルをMayaの中に読み込んだり、Mayaで作られたモデル
 
 使う時にmmdpaimayaのフォルダをMayaスクリプトフォルダに置きます。
 
+
+今のところはMaya2022のpython3でしか使えません。
+
+mmdpaimayaのフォルダをMayaスクリプトフォルダに置きます。
+
 ```python
 import mmdpaimaya
 mmdpaimaya.yamikuma()
