@@ -24,7 +24,6 @@ def sang(chue_tem_file,satsuan_ok=1,chai_kraduk=True,chai_bs=True,chai_watsadu=T
     model_dis2_ap = pmx_model.display[2].data.append # 可動域の表示枠
     if(thangmot):
         lis_chue_nod_poly = mc.filterExpand(mc.ls(transforms=1),selectionMask=12)
-        print(lis_chue_nod_poly)
         if(lis_chue_nod_poly==None): # ポリゴンが全然ない場合
             print('このシーンの中にポリゴンはありません')
             return
@@ -34,9 +33,9 @@ def sang(chue_tem_file,satsuan_ok=1,chai_kraduk=True,chai_bs=True,chai_watsadu=T
             print('ポリゴンは選択せれていません')
             return
     print('エクスポートするポリゴン：%s'%lis_chue_nod_poly)
-
+    
     lis_chue_nod_shep = [] # 全てのシェープのノードを収めるリスト
-    lis_chue_nod_skin = [] # 全てのスキンのノードを収めるリスト
+    lis_chue_nod_skin = [] # ポリゴンに使う全てのスキンのノードを収めるリスト
     lis_chue_tex = [] # テクスチャの名前を収めるリスト
     lis_matrix_mun = [0]
     
@@ -54,7 +53,7 @@ def sang(chue_tem_file,satsuan_ok=1,chai_kraduk=True,chai_bs=True,chai_watsadu=T
             # このポリゴンと接続されているスキンがない場合
             else:
                 lis_chue_nod_skin.append(0)
-    
+                
     if(chai_kraduk): # ここで骨を作成しておく
         dic_chue_nod_kho = {'全ての親':0} # 一番外のジョイント
         i_kho = 1 # ジョイントの順番をカウントする
@@ -64,7 +63,7 @@ def sang(chue_tem_file,satsuan_ok=1,chai_kraduk=True,chai_bs=True,chai_watsadu=T
                 continue
             # 使用するスキンのノードと接続されているかどうか
             for chue_nod_skin in lis_chue_nod_skin:
-                if(chue_nod_skin and k in (pm.PyNode(x).fullPath() for x in mc.skinCluster(chue_nod_skin,query=True,influence=True))):
+                if(chue_nod_skin and k in [pm.PyNode(x).fullPath() for x in mc.skinCluster(chue_nod_skin,query=True,influence=True)]):
                     break
             # 接続されていない場合、このジョイントはスキップ
             else:
@@ -171,6 +170,7 @@ def sang(chue_tem_file,satsuan_ok=1,chai_kraduk=True,chai_bs=True,chai_watsadu=T
     for chue_nod_poly in lis_chue_nod_poly:
         if(chai_kraduk):
             chue_nod_skin = lis_chue_nod_skin[i_poly]
+            chue_nod_shep = lis_chue_nod_shep[i_poly]
             if(chue_nod_skin):
                 dic_kho = {} # ジョイントの番号とジョイントの名前の辞書
                 for i,chue_nod_kho in enumerate(mc.skinCluster(chue_nod_skin,query=True,influence=True)):
@@ -408,14 +408,12 @@ def sang(chue_tem_file,satsuan_ok=1,chai_kraduk=True,chai_bs=True,chai_watsadu=T
                     chue_nod_poly = mc.listRelatives(na,parent=True)[0]
                     na0 = 0
                     na1 = mc.polyEvaluate(chue_nod_poly,face=True)-1
-    
                 # 選択されたポリゴンのリストの中にある場合、そのポリゴンの番号を取る
                 if(chue_nod_poly in lis_chue_nod_poly):
                     lek_nod_poly = lis_chue_nod_poly.index(chue_nod_poly)
                 # このリストにない場合、無視する
                 else:
                     continue
-    
                 for lai_na in range(na0,na1+1): # モデルの面のリストに追加
                     lek_chut_nai_na = lis_lek_chut_mai[lek_nod_poly][lai_na]
                     for ii in range(0,len(lek_chut_nai_na),3):
