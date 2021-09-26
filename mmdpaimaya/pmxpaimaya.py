@@ -40,18 +40,18 @@ def sang(chue_tem_file,satsuan=1,yaek_poly=False,ao_bs=True,ao_kraduk=True,watsa
         lis_chue_nod_poly_mat = []
     else:
         # pmxモデルから頂点の位置とuv一つずつ入れていく
-        lis_xyz = []
-        lis_u = []
+        lis_xyz = [] # 頂点の位置を収めるリスト
+        lis_u = [] # 頂点のuvを収めるリスト
         lis_v = []
-        lis_norm = []
-        for i,vtx in enumerate(pmx_model.vertices):
+        lis_norm = [] # 頂点の法線を収めるリスト
+        for vtx in pmx_model.vertices:
             try:
                 lis_xyz.append(om.MFloatPoint(vtx.co[0]*satsuan,vtx.co[1]*satsuan,-vtx.co[2]*satsuan))
             except: # 大きすぎたりとエラーが出る場合もあるので、(0,0,0)にする
                 lis_xyz.append(om.MFloatPoint(0,0,0))
-            lis_u.append(vtx.uv[0])
+            lis_u.append(vtx.uv[0]) # 頂点のuvをリストに収める
             lis_v.append(1.-vtx.uv[1])
-            if(vtx.normal):
+            if(vtx.normal): # 頂点の法線のデータがあった場合
                 lis_norm.append(om.MFloatVector(vtx.normal[0],vtx.normal[1],-vtx.normal[2]))
         
         lis_index_chut = [] # この面に使う頂点を収めるリスト
@@ -60,16 +60,16 @@ def sang(chue_tem_file,satsuan=1,yaek_poly=False,ao_bs=True,ao_kraduk=True,watsa
         for i_chut_nai_na in pmx_model.faces:
             i_chut_nai_na = list(dict.fromkeys(i_chut_nai_na)) # この面に使う頂点
             n_chut_nai_na = len(i_chut_nai_na) # この面に使う頂点の数
-            if(n_chut_nai_na>=3): # 重複しない頂点が3以上ある場合のみこの面を使う
+            if(n_chut_nai_na>=3): # 重複しない頂点が3以上ある場合のみ、この面を使う
                 lis_index_chut.extend(i_chut_nai_na)
                 lis_n_chut_nai_na.append(n_chut_nai_na)
-                lis_na_ni_chai_mai.append(True) # 使う
+                lis_na_ni_chai_mai.append(True) # この面を使う
             else:
-                lis_na_ni_chai_mai.append(False) # 使わない
+                lis_na_ni_chai_mai.append(False) # この面を使わない
         
         chue_nod_poly = sang_poly(chue_nod_model,lis_xyz,lis_index_chut,lis_n_chut_nai_na,lis_u,lis_v,lis_norm)
         
-        if(not watsadu):
+        if(not watsadu): # 材質を使わないと選択したら全部ただのlambertにする
             mc.select(chue_nod_poly)
             mc.hyperShade(assign='lambert1')
     

@@ -15,11 +15,11 @@ def sang(chue_tem_file,satsuan_ok=1,chai_kraduk=True,chai_bs=True,chai_watsadu=T
     shoki = os.path.join(os.path.dirname(__file__),'asset','model00.pmx')
     pmx_model = mmdio.pmx.load(shoki) # 初期のpmxモデル
     # もっと速くするために予めappendメソッドを準備しておく
-    model_vert_ap = pmx_model.vertices.append # 頂点
+    model_vtx_ap = pmx_model.vertices.append # 頂点
     model_face_ap = pmx_model.faces.append # 面
     model_bon_ap = pmx_model.bones.append # 骨
     model_mat_ap = pmx_model.materials.append # 材質
-    model_mor_ap = pmx_model.morphs.append # モーフ
+    model_morph_ap = pmx_model.morphs.append # モーフ
     model_dis1_ap = pmx_model.display[1].data.append # 表示ょの表示枠
     model_dis2_ap = pmx_model.display[2].data.append # 可動域の表示枠
     if(thangmot):
@@ -34,20 +34,20 @@ def sang(chue_tem_file,satsuan_ok=1,chai_kraduk=True,chai_bs=True,chai_watsadu=T
             return
     print('エクスポートするポリゴン：%s'%lis_chue_nod_poly)
     
-    lis_chue_nod_shep = [] # 全てのシェープのノードを収めるリスト
+    lis_chue_nod_shp = [] # 全てのシェープのノードを収めるリスト
     lis_chue_nod_skin = [] # ポリゴンに使う全てのスキンのノードを収めるリスト
     lis_chue_tex = [] # テクスチャの名前を収めるリスト
     lis_matrix_mun = [0]
     
     for chue_nod_poly in lis_chue_nod_poly:
         # このポリゴンのシェープのノード
-        chue_nod_shep = mc.listRelatives(chue_nod_poly,shapes=True,fullPath=True)[0]
-        lis_chue_nod_shep.append(chue_nod_shep)
+        chue_nod_shp = mc.listRelatives(chue_nod_poly,shapes=True,fullPath=True)[0]
+        lis_chue_nod_shp.append(chue_nod_shp)
         # 骨もエクスポートすると選択した場合
         if(chai_kraduk):
             for chue_nod_skin in mc.ls(typ='skinCluster'): # このポリゴンに使うスキンのノード
                 # このスキンのノードに接続されているシェープのノードは、このホリゴンのシェープのノードに接続していれば、このスキンを使う
-                if(pm.PyNode(chue_nod_shep).name() in mc.skinCluster(chue_nod_skin,query=True,geometry=True)):
+                if(pm.PyNode(chue_nod_shp).name() in mc.skinCluster(chue_nod_skin,query=True,geometry=True)):
                     lis_chue_nod_skin.append(chue_nod_skin)
                     break
             # このポリゴンと接続されているスキンがない場合
@@ -149,32 +149,25 @@ def sang(chue_tem_file,satsuan_ok=1,chai_kraduk=True,chai_bs=True,chai_watsadu=T
                 i_kho += 1
     
     
-    lis_tamnaeng = []
-    lis_norm = []
-    lis_u = []
+    lis_xyz = [] # 頂点の位置を収めるリスト
+    lis_u = [] # 頂点のuvを収めるリスト
     lis_v = []
-    
-    lis_lek_tamnaeng_nai_na = []
-    lis_na_nai_poly = []
-    lis_chut_nai_poly = []
-    
-    lai_lek_tamnaeng = 0
-    lai_lek_norm = 0
+    lis_norm = [] # 頂点の法線を収めるリスト
+    lis_lis_lis_lek_chut_mai = []
+    dic_tup_chut = {} # 頂点の新しい番号と繋ぐ辞書
+    lai_lek_chut = 0
+    lai_lek_xyz = 0
     lai_lek_uv = 0
-    
-    lis_lek_chut_mai = []
-    dic_tup_chut = {}
-    lai_lek = 0
-    lis_chue_nod_bs = mc.ls(typ='blendShape')
+    lai_lek_norm = 0
     i_poly = 0 # ポリゴンの順番
     for chue_nod_poly in lis_chue_nod_poly:
         if(chai_kraduk):
             chue_nod_skin = lis_chue_nod_skin[i_poly]
-            chue_nod_shep = lis_chue_nod_shep[i_poly]
+            chue_nod_shp = lis_chue_nod_shp[i_poly]
             if(chue_nod_skin):
                 dic_kho = {} # ジョイントの番号とジョイントの名前の辞書
-                for i,chue_nod_kho in enumerate(mc.skinCluster(chue_nod_skin,query=True,influence=True)):
-                    dic_kho[i] = dic_chue_nod_kho[pm.PyNode(chue_nod_kho).fullPath()]
+                for ii,chue_nod_kho in enumerate(mc.skinCluster(chue_nod_skin,query=True,influence=True)):
+                    dic_kho[ii] = dic_chue_nod_kho[pm.PyNode(chue_nod_kho).fullPath()]
                 
                 # ジョイントとポリゴンの接続される重みを取得する
                 selelis = om.MSelectionList()
@@ -182,7 +175,7 @@ def sang(chue_tem_file,satsuan_ok=1,chai_kraduk=True,chai_bs=True,chai_watsadu=T
                 obj_skin = selelis.getDependNode(0)
                 fn_skin = oma.MFnSkinCluster(obj_skin)
                 selelis = om.MSelectionList()
-                selelis.add(chue_nod_shep)
+                selelis.add(chue_nod_shp)
                 dagpath_mesh = selelis.getDagPath(0)
                 path_influ = fn_skin.influenceObjects()
                 n_influ = len(path_influ)
@@ -196,10 +189,10 @@ def sang(chue_tem_file,satsuan_ok=1,chai_kraduk=True,chai_bs=True,chai_watsadu=T
         if(chai_bs):
             w_doem = [] # 元の重みの値を収めるリスト
             # このポリゴンに接続しているブレンドシェープのノードだけ取る
-            lis_chue_nod_bs_ni = []
-            for chue_nod_bs in lis_chue_nod_bs:
+            lis_chue_nod_bs = []
+            for chue_nod_bs in mc.ls(typ='blendShape'):
                 # これがこのブレンドシェープに接続しているポリゴンであるかどうかチェック
-                if(pm.PyNode(chue_nod_shep).name() not in mc.blendShape(chue_nod_bs,query=True,geometry=True)):
+                if(pm.PyNode(chue_nod_shp).name() not in mc.blendShape(chue_nod_bs,query=True,geometry=True)):
                     continue # 違ったらスキップ
                 try:
                     ww = mc.getAttr(chue_nod_bs+'.w[*]') # 元の重みを収めておく
@@ -210,40 +203,38 @@ def sang(chue_tem_file,satsuan_ok=1,chai_kraduk=True,chai_bs=True,chai_watsadu=T
                     ww = [ww] # 一つしかない場合は返り値がリストにはならないので、全部リストにしておく
                 w_doem.append(ww)
                 mc.setAttr(chue_nod_bs+'.w[*]',*[0]*len(ww)) # まずは全部の重みを0にしておく
-                lis_chue_nod_bs_ni.append(chue_nod_bs)
+                lis_chue_nod_bs.append(chue_nod_bs)
     
-        # 頂点の位置
+        # このポリゴンの頂点の位置
         selelis = om.MSelectionList()
-        selelis.add(chue_nod_shep)
+        selelis.add(chue_nod_shp)
         fnmesh = om.MFnMesh(selelis.getDagPath(0))
-        tamnaeng = fnmesh.getPoints(space=om.MSpace.kWorld)
-        lis_tamnaeng.extend(tamnaeng)
-        lis_chut_nai_na,vertid = fnmesh.getVertices()
-        chut_nai_poly = len(vertid)
+        lis_xyz_nai_poly = fnmesh.getPoints(space=om.MSpace.kWorld)
+        lis_xyz.extend(lis_xyz_nai_poly)
+        lis_n_chut_nai_na,lis_lek_xyz = fnmesh.getVertices()
     
         # 頂点の法線
-        norm = fnmesh.getNormals(space=om.MSpace.kWorld)
-        lis_norm.extend(norm)
-        normid = fnmesh.getNormalIds()[1]
+        lis_norm_nai_poly = fnmesh.getNormals(space=om.MSpace.kWorld)
+        lis_norm.extend(lis_norm_nai_poly)
+        lis_lek_norm = fnmesh.getNormalIds()[1]
     
         # 頂点のuv
-        u,v = fnmesh.getUVs()
-        lis_u.extend(u)
-        lis_v.extend(v)
-        uvid = fnmesh.getAssignedUVs()[1]
+        lis_u_nai_poly,lis_v_nai_poly = fnmesh.getUVs()
+        lis_u.extend(lis_u_nai_poly)
+        lis_v.extend(lis_v_nai_poly)
+        lis_lek_uv = fnmesh.getAssignedUVs()[1]
     
         # その面に構成する三角形の数と頂点
-        lis_samliam_nai_na,lis_lek_chut = fnmesh.getTriangles()
-        lis_lek_tamnaeng_nai_na_nai_poly = []
-        lai_samliam = 0
+        lis_n_samliam_nai_na,lis_lek_xyz_nai_na = fnmesh.getTriangles()
+        lai_lek_samliam_nai_na = 0
     
         lis_chue_bs = []
         if(chai_bs):
-            lis_tamnaeng_bs = [] # 移動した後の頂点の位置を収めるリスト
+            lis_xyz_bs = [] # 移動した後の頂点の位置を収めるリスト
             lis_luean_bs = []
             lis_luean_bs_ap = []
-            for i,chue_nod_bs in enumerate(lis_chue_nod_bs_ni):
-                n_bs_nai_nod = len(w_doem[i]) # そのノードにある全てのブレンドシェープ
+            for i_bs,chue_nod_bs in enumerate(lis_chue_nod_bs):
+                n_bs_nai_nod = len(w_doem[i_bs]) # そのノードにある全てのブレンドシェープ
                 # 一つずつブレンドシェープを処理する
                 for i,bs in enumerate(mc.listAttr(chue_nod_bs+'.w',multi=True)):
                     # 他は全部0にしておいて、そのブレンドシェープ一つだけ1にする
@@ -251,31 +242,31 @@ def sang(chue_tem_file,satsuan_ok=1,chai_kraduk=True,chai_bs=True,chai_watsadu=T
                     ww[i] = 1
                     mc.setAttr(chue_nod_bs+'.w[*]',*ww)
                     # 移動した後の頂点の位置
-                    tamnaeng_bs = fnmesh.getPoints(space=om.MSpace.kWorld)
-                    lis_tamnaeng_bs.append(tamnaeng_bs)
+                    xyz_bs = fnmesh.getPoints(space=om.MSpace.kWorld)
+                    lis_xyz_bs.append(xyz_bs)
                     lis_chue_bs.append(bs)
                     luean_bs = []
                     lis_luean_bs.append(luean_bs)
                     lis_luean_bs_ap.append(luean_bs.append)
             # 重みを元に戻す
-            for i,chue_nod_bs in enumerate(lis_chue_nod_bs_ni):
-                mc.setAttr(chue_nod_bs+'.w[*]',*w_doem[i])
+            for i_bs,chue_nod_bs in enumerate(lis_chue_nod_bs):
+                mc.setAttr(chue_nod_bs+'.w[*]',*w_doem[i_bs])
     
         n_bs = len(lis_chue_bs)
-        lis_lek_chut_mai_nai_poly = []
-        i = 0
-        for samliam_nai_na,chut_nai_na in zip(lis_samliam_nai_na,lis_chut_nai_na):
-            # その面の三角形の数、その面の頂点の数
+        lis_lis_lek_chut_mai_nai_poly = []
+        i_chut = 0
+        for n_samliam_nai_na,n_chut_nai_na in zip(lis_n_samliam_nai_na,lis_n_chut_nai_na):
+            # その面の三角形の数と、その面の頂点の数
             dic_lai_lek = {}
-            for j in range(chut_nai_na):
-                lek_tamnaeng = vertid[i]
-                lek_norm = normid[i]
-                lek_uv = uvid[i]
-                tup_chut = (lek_tamnaeng+lai_lek_tamnaeng,lek_norm+lai_lek_norm,lek_uv+lai_lek_uv)
+            for j in range(n_chut_nai_na):
+                lek_xyz = lis_lek_xyz[i_chut]
+                lek_norm = lis_lek_norm[i_chut]
+                lek_uv = lis_lek_uv[i_chut]
+                tup_chut = (lek_xyz+lai_lek_xyz,lek_norm+lai_lek_norm,lek_uv+lai_lek_uv)
                 if(tup_chut in dic_tup_chut):
                     lek_chut_mai = dic_tup_chut[tup_chut]
                 else:
-                    lek_chut_mai = lai_lek
+                    lek_chut_mai = lai_lek_chut
                     dic_tup_chut[tup_chut] = lek_chut_mai
     
                     # スキンと接続している場合、重みの値を取る
@@ -284,7 +275,7 @@ def sang(chue_tem_file,satsuan_ok=1,chai_kraduk=True,chai_bs=True,chai_watsadu=T
                         n_kho = len(dic_kho) # ジョイントの数
                         w = [] # [ノード名, 重み]リストを収めるリスト
                         # 重みのリストから重みの値を取る。長さはn_kho
-                        for i_namnak,namnak in enumerate(lis_namnak[lek_tamnaeng*n_kho:(lek_tamnaeng+1)*n_kho]):
+                        for i_namnak,namnak in enumerate(lis_namnak[lek_xyz*n_kho:(lek_xyz+1)*n_kho]):
                             # 重みが小さすぎないジョイントの[ノード名, 重み]だけ取る
                             if(namnak>0.001):
                                 w.append([dic_kho[i_namnak],namnak])
@@ -327,53 +318,50 @@ def sang(chue_tem_file,satsuan_ok=1,chai_kraduk=True,chai_bs=True,chai_watsadu=T
     
                     # 取得した頂点データからモデルの頂点のリストに追加
                     vtx = mmdio.pmx.Vertex()
-                    p = lis_tamnaeng[lek_tamnaeng+lai_lek_tamnaeng]
+                    p = lis_xyz[lek_xyz+lai_lek_xyz]
                     vtx.co = [p[0]*satsuan_ok,p[1]*satsuan_ok,-p[2]*satsuan_ok]
                     nm = lis_norm[lek_norm+lai_lek_norm]
                     vtx.normal = [nm[0],nm[1],-nm[2]]
                     vtx.uv = [lis_u[lek_uv+lai_lek_uv],1.-lis_v[lek_uv+lai_lek_uv]]
                     vtx.weight = bowe
                     vtx.edge_factor = 1.
-                    model_vert_ap(vtx) # モデルの頂点のリストに追加
+                    model_vtx_ap(vtx) # モデルの頂点のリストに追加
     
                     for i_bs in range(n_bs):
-                        p1 = lis_tamnaeng_bs[i_bs][lek_tamnaeng]
+                        p1 = lis_xyz_bs[i_bs][lek_xyz]
                         po = [(p1[0]-p[0])*satsuan_ok,(p1[1]-p[1])*satsuan_ok,(p[2]-p1[2])*satsuan_ok]
                         # 位置の変更が起きる頂点だけ取る
                         if(po[0]**2+po[1]**2+po[2]**2>0):
                             vmoffset = mmdio.pmx.VertexMorphOffset()
-                            vmoffset.index = lai_lek
+                            vmoffset.index = lai_lek_chut
                             vmoffset.offset = po
                             lis_luean_bs_ap[i_bs](vmoffset)
-                    lai_lek += 1
+                    lai_lek_chut += 1
     
-                dic_lai_lek[lek_tamnaeng+lai_lek_tamnaeng] = lek_chut_mai
-                i += 1
-    
-            ll = []
-            for j in range(lai_samliam*3,(lai_samliam+samliam_nai_na)*3,3):
+                dic_lai_lek[lek_xyz+lai_lek_xyz] = lek_chut_mai
+                i_chut += 1
+            
+            lis_lek_chut_mai_nai_samliam = []
+            for j in range(lai_lek_samliam_nai_na*3,(lai_lek_samliam_nai_na+n_samliam_nai_na)*3,3):
                 for jj in range(3):
-                    lek_tamnaeng = lis_lek_chut[j+2-jj]
-                    lek_chut_mai = dic_lai_lek[lek_tamnaeng+lai_lek_tamnaeng]
-                    ll.append(lek_chut_mai)
-            lai_samliam += samliam_nai_na
-            lis_lek_chut_mai_nai_poly.append(ll)
+                    lek_xyz = lis_lek_xyz_nai_na[j+2-jj]
+                    lek_chut_mai = dic_lai_lek[lek_xyz+lai_lek_xyz]
+                    lis_lek_chut_mai_nai_samliam.append(lek_chut_mai)
+            lai_lek_samliam_nai_na += n_samliam_nai_na
+            lis_lis_lek_chut_mai_nai_poly.append(lis_lek_chut_mai_nai_samliam)
     
         # 準備しておいたブレンドシェープのデータからモーフを作成する
         if(chai_bs):
-            for i_mor,(chue_bs,luean_bs) in enumerate(zip(lis_chue_bs,lis_luean_bs)):
+            for i_morph,(chue_bs,luean_bs) in enumerate(zip(lis_chue_bs,lis_luean_bs)):
                 morph = mmdio.pmx.VertexMorph(name=chue_bs,name_e=chue_bs,category=4)
                 morph.offsets = luean_bs
-                model_mor_ap(morph)
-                model_dis1_ap((1,i_mor))
-    
-        lis_na_nai_poly.append(vertid)
-        lis_chut_nai_poly.append(chut_nai_poly)
-        lai_lek_tamnaeng += len(tamnaeng)
-        lai_lek_norm += len(norm)
-        lai_lek_uv += len(u)
-        lis_lek_tamnaeng_nai_na.append(lis_lek_tamnaeng_nai_na_nai_poly)
-        lis_lek_chut_mai.append(lis_lek_chut_mai_nai_poly)
+                model_morph_ap(morph)
+                model_dis1_ap((1,i_morph))
+        
+        lai_lek_xyz += len(lis_xyz_nai_poly)
+        lai_lek_norm += len(lis_norm_nai_poly)
+        lai_lek_uv += len(lis_u_nai_poly)
+        lis_lis_lis_lek_chut_mai.append(lis_lis_lek_chut_mai_nai_poly)
         i_poly += 1
     
     # 材質を使う場合
@@ -386,38 +374,39 @@ def sang(chue_tem_file,satsuan_ok=1,chai_kraduk=True,chai_bs=True,chai_watsadu=T
             if(not liscon):
                 continue # sgと繋がっていない材質はスキップ
             sg = liscon[0]
-            lis_na = mc.sets(sg,query=True) # この材質を使っている面のリスト
-            if(not lis_na):
+            lis_lek_na_nai_mat = mc.sets(sg,query=True) # この材質を使っている面のリスト
+            if(not lis_lek_na_nai_mat):
                 if(len(liscon)>1):
                     sg = liscon[1]
-                    lis_na = mc.sets(sg,query=True)
+                    lis_lek_na_nai_mat = mc.sets(sg,query=True)
                 # 全然使われていない場合、この材質をスキップ
-                if(not lis_na):
+                if(not lis_lek_na_nai_mat):
                     continue
     
             n_chut_nai_mat = 0 # この面の中の頂点の数
-            for na in lis_na:
-                if('[' in na):
-                    chue_nod_poly,na0,na1 = re.findall(r'(\w+).f\[(\d+):?(\d+)?]',na)[0]
-                    na0 = int(na0)
-                    if(na1==''):
-                        na1 = na0
+            for na_nai_mat in lis_lek_na_nai_mat:
+                if('[' in na_nai_mat): # ただこのポリゴンの面の一部だけ材質が使われる場合
+                    # ポリゴンの名前と、最初の面と最後の面の番号
+                    chue_nod_poly,lek_na_roem,lek_na_chop = re.findall(r'(\w+).f\[(\d+):?(\d+)?]',na_nai_mat)[0]
+                    lek_na_roem = int(lek_na_roem) # 最初の面の番号
+                    if(lek_na_chop==''): # ただ一面しかない場合
+                        lek_na_chop = lek_na_roem
                     else:
-                        na1 = int(na1)
-                else:
-                    chue_nod_poly = mc.listRelatives(na,parent=True)[0]
-                    na0 = 0
-                    na1 = mc.polyEvaluate(chue_nod_poly,face=True)-1
+                        lek_na_chop = int(lek_na_chop) # 最後の面の番号
+                else: # このポリゴン全体がこの材質を使う場合
+                    chue_nod_poly = mc.listRelatives(na_nai_mat,parent=True)[0]
+                    lek_na_roem = 0
+                    lek_na_chop = mc.polyEvaluate(chue_nod_poly,face=True)-1
                 # 選択されたポリゴンのリストの中にある場合、そのポリゴンの番号を取る
                 if(chue_nod_poly in lis_chue_nod_poly):
                     lek_nod_poly = lis_chue_nod_poly.index(chue_nod_poly)
                 # このリストにない場合、無視する
                 else:
                     continue
-                for lai_na in range(na0,na1+1): # モデルの面のリストに追加
-                    lek_chut_nai_na = lis_lek_chut_mai[lek_nod_poly][lai_na]
-                    for ii in range(0,len(lek_chut_nai_na),3):
-                        model_face_ap(lek_chut_nai_na[ii:ii+3])
+                for lek_na in range(lek_na_roem,lek_na_chop+1): # 頂点の番号をモデルの面のリストに追加する
+                    lis_lek_chut_nai_na = lis_lis_lis_lek_chut_mai[lek_nod_poly][lek_na]
+                    for ii in range(0,len(lis_lek_chut_nai_na),3):
+                        model_face_ap(lis_lek_chut_nai_na[ii:ii+3])
                         n_chut_nai_mat += 3
     
             # 選択されているポリゴンの中で使われていない材質は無視する
@@ -512,10 +501,11 @@ def sang(chue_tem_file,satsuan_ok=1,chai_kraduk=True,chai_bs=True,chai_watsadu=T
     # 材質を使わないと選択した場合、全部同じ材質にする
     else:
         n_chut_nai_mat = 0
-        for lis_lek_chut_nai_poly in lis_lek_chut_mai:
-            for lis_lek_chut_nai_na in lis_lek_chut_nai_poly:
-                n_chut_nai_mat += len(lis_lek_chut_nai_na)
-                for i in range(0,len(lis_lek_chut_nai_na),3):
+        for lis_lis_lek_chut_nai_poly in lis_lis_lis_lek_chut_mai:
+            for lis_lek_chut_nai_na in lis_lis_lek_chut_nai_poly:
+                n_chut_nai_na = len(lis_lek_chut_nai_na)
+                n_chut_nai_mat += n_chut_nai_na
+                for i in range(0,n_chut_nai_na,3):
                     model_face_ap(lis_lek_chut_nai_na[i:i+3])
     
         mat = mmdio.pmx.Material()
