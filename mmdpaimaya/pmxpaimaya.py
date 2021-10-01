@@ -23,7 +23,8 @@ def sang(chue_tem_file,satsuan=1,yaek_poly=False,ao_bs=True,ao_kraduk=True,watsa
             print('pmxとpmdとxファイルしか使用できません')
             raise
     except:
-        print('ファイルの読み込み失敗')
+        print('モデルに何か問題があって、ファイルの読み込みは失敗です')
+        raise
     
     chue_nod_model = romaji(pmx_model.name) # モデルの名前をロマジに変換してモデルのノードの名前にする
     if(not chue_nod_model or set(chue_nod_model)=={'_'}):
@@ -137,7 +138,6 @@ def sang(chue_tem_file,satsuan=1,yaek_poly=False,ao_bs=True,ao_kraduk=True,watsa
             mc.setAttr(chue_nod_mat+'.specular',0.75**(math.log(max(sf,0.5),2)+1))
             mc.setAttr(chue_nod_mat+'.specularRoughness',min(sf*0.01,1))
             mc.setAttr(chue_nod_mat+'.base',1)
-            mc.setAttr(chue_nod_mat+'.emissionColor',*ambc,typ='double3')
         
         # 日本語の名前も一応収めておく
         mc.addAttr(chue_nod_mat,longName='namae',niceName='名前',dataType='string')

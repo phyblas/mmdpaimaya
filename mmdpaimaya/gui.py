@@ -159,7 +159,7 @@ class Natang_mmdmaya(QWidget):
         self.cb_yaek_poly.toggled.connect(lambda:self.chue_thuk_kae(self.le_chue_file.text()))
         self.cb_pit.setChecked(pit_mai)
 
-    def chue_thuk_kae(self,chue_file):
+    def chue_thuk_kae(self,chue_file): # ファイルの名前が更新されたら
         sakun = chue_file.split('.')[-1]
         sang_dai = (sakun.lower() in ['pmd','pmx','x'])
         self.btn_roem_sang.setEnabled(sang_dai)
@@ -170,7 +170,7 @@ class Natang_mmdmaya(QWidget):
         self.cb_ao_kraduk.setStyleSheet(['text-decoration: line-through; color: #aab;',''][dai])
         self.cb_ao_bs.setStyleSheet(['text-decoration: line-through; color: #aab;',''][dai])
 
-    def khon_file(self):
+    def khon_file(self): # 読み込むファイルをブラウスする
         self.setWindowFlags(self.windowFlags() & ~Qt.WindowStaysOnTopHint)
         chue_file,ok = QFileDialog.getOpenFileName(filter='PMD/PMX/X (*.pmd *.pmx *.x)')
         if(ok):
@@ -178,13 +178,13 @@ class Natang_mmdmaya(QWidget):
         self.setWindowFlags(self.windowFlags() | Qt.WindowStaysOnTopHint)
         self.show()
 
-    def satsuan_thuk_kae(self,kha):
+    def satsuan_thuk_kae(self,kha): # 尺度が更新されたら
         try:
             float(kha)
         except:
             self.le_satsuan.setText('1')
 
-    def roem_sang(self):
+    def roem_sang(self): # ボタンがクリックされたら、作成は開始
         chue_tem_file = self.le_chue_file.text()
         try:
             satsuan = float(self.le_satsuan.text())
@@ -195,9 +195,10 @@ class Natang_mmdmaya(QWidget):
         ao_bs = not yaek_poly and self.cb_ao_bs.isChecked()
         ao_kraduk = not yaek_poly and self.cb_ao_kraduk.isChecked()
         watsadu = self.cbb_watsadu.currentIndex()
+        # ここでmayaのシーンの中でモデルを作る
         pmxpaimaya.sang(chue_tem_file,satsuan,yaek_poly,ao_bs,ao_kraduk,watsadu)
 
-        pit_mai = self.cb_pit.isChecked()
+        pit_mai = self.cb_pit.isChecked() # 今回使った設定を保存しておく
         with open(self.file_khatangton,'w',encoding='utf-8') as f:
             f.write('ファイルの名前 = %s\n'%chue_tem_file)
             f.write('尺度 = %f\n'%satsuan)
@@ -207,10 +208,10 @@ class Natang_mmdmaya(QWidget):
             f.write('材質 = %d\n'%watsadu)
             f.write('閉じる = %d\n'%pit_mai)
 
-        if(pit_mai):
+        if(pit_mai): # 終わったらこのウィンドウを閉じる
             self.close()
 
-    def keyPressEvent(self,e):
+    def keyPressEvent(self,e): # escが押されたら閉じる
         if(e.key()==Qt.Key_Escape):
             self.close()
 
@@ -299,7 +300,7 @@ class Natang_humanik(QWidget):
                     btn = QPushButton('選択')
                     hbl.addWidget(btn)
                     btn.setFixedSize(50,30)
-                    
+
                     le = QLineEdit(chue_nod_kho)
                     hbl.addWidget(le)
                     btn.clicked.connect((lambda x: (lambda: mc.select(x.text())))(le))
@@ -311,9 +312,9 @@ class Natang_humanik(QWidget):
                 hbl.addWidget(lb)
                 lb.setFixedWidth(400)
                 lb.setStyleSheet('color: #fab;')
-            
+
             hbl.addStretch()
-        
+
         kangkhaen(dic_chue)
         self.vbl.addStretch()
         self.btn_sang_hik.setEnabled(True)
