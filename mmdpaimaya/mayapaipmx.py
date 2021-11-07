@@ -96,8 +96,7 @@ def sang(chue_tem_file,satsuan_ok=1,chai_kraduk=True,chai_bs=True,chai_watsadu=T
             for chue_nod_kho in lis_cp:
                 # ボーンを作って初期値を与える
                 bone = mmdio.pmx.Bone()
-                bone.name = '骨%d'%i_kho # 番号で日本語名を付ける
-                bone.name_e = chue_nod_kho # 英語名はジョイントのノードの名前を使う
+                bone.name = chue_nod_kho.split('|')[-1] # ジョイントのノードの名前をボーンの名前に使う
                 bone.isRotatable = True # 全てのボーンは回転可能
                 bone.isMovable = False # 親のないボーンだけ移動可能
                 bone.visible = True # 全てのボーン表示
