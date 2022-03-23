@@ -73,6 +73,7 @@ class Natang_mmdmaya(QWidget):
     '''
     def __init__(self,parent):
         QWidget.__init__(self)
+        self.setAcceptDrops(True)
         self.parent = parent
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowTitle('~ MMD > Maya ~')
@@ -177,6 +178,14 @@ class Natang_mmdmaya(QWidget):
             self.le_chue_file.setText(chue_file)
         self.setWindowFlags(self.windowFlags() | Qt.WindowStaysOnTopHint)
         self.show()
+
+
+    def dragEnterEvent(self,e):
+        if(e.mimeData().hasUrls()): # ファイルがドラッグされたら使える
+            e.accept()
+
+    def dropEvent(self,e):
+        self.le_chue_file.setText(e.mimeData().urls()[0].toLocalFile()) # ドラッグされたファイルの名前を取得する
 
     def satsuan_thuk_kae(self,kha): # 尺度が更新されたら
         try:

@@ -19,7 +19,14 @@ def load2pmx(chue_tem_file):
     lis_chue_tex = [] # テクスチャの名前を収めるリスト
     lis_na = [] # 面の位置を収めるリスト。後で材質の順で並べ直す
     
-    with open(chue_tem_file,'r',encoding='utf-8') as file_x:
+    try: #UTF8で読んで問題ないかどうかチェック
+        with open(chue_tem_file,'r',encoding='utf-8') as file_x:
+            file_x.read()
+            encoding = 'utf-8'
+    except: # 問題あったらshift jis
+        encoding = 'shift_jis'
+    
+    with open(chue_tem_file,'r',encoding=encoding) as file_x:
         s = file_x.readline()
         while(s):
             s = s.strip()

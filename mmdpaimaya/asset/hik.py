@@ -30,7 +30,7 @@ dic_hik = {
     46: ['左手捩','hidaritemojiri'],
     47: ['右腕捩','migiudemojiri'],
     48: ['右手捩','migitemojiri'],
-    50: ['左親指0','hidarioyayubi0'],
+    50: ['左親指0','hidarioyayubi0M?'],
     51: ['左親指1','hidarioyayubi1'],
     52: ['左親指2','hidarioyayubi2'],
     53: ['左親指先','hidarioyayubi.*saki'],
@@ -50,7 +50,7 @@ dic_hik = {
     67: ['左小指2','hidarikoyubi2'],
     68: ['左小指3','hidarikoyubi3'],
     69: ['左小指先','hidarikoyubi.*saki'],
-    74: ['右親指0','migioyayubi0'],
+    74: ['右親指0','migioyayubi0M?'],
     75: ['右親指1','migioyayubi1'],
     76: ['右親指2','migioyayubi2'],
     77: ['右親指先','migioyayubi.*saki'],
@@ -80,12 +80,12 @@ def kangkhaen(dic_chue):
     # まず全部のジョイントの回転を0に戻す
     for kho in dic_chue.values():
         mc.setAttr(kho+'.r',0,0,0)
-    
+
     xyz_la = mc.xform(la,query=True,translation=True,worldSpace=True)
     xyz_lh0 = mc.xform(lh,query=True,translation=True,worldSpace=True)
     xyz_ra = mc.xform(ra,query=True,translation=True,worldSpace=True)
     xyz_rh0 = mc.xform(rh,query=True,translation=True,worldSpace=True)
-    
+
     atan_l = math.degrees(math.atan2(xyz_la[1]-xyz_lh0[1],xyz_lh0[0]-xyz_la[0]))
     atan_r = math.degrees(math.atan2(xyz_ra[1]-xyz_rh0[1],xyz_ra[0]-xyz_rh0[0]))
 
@@ -98,7 +98,7 @@ def kangkhaen(dic_chue):
     xyz_rh1 = mc.xform(rh,query=True,translation=True,worldSpace=True)
     if(xyz_rh1[1]<xyz_rh0[1]):
         mc.setAttr(ra+'.rz',atan_r)
-    
+
     xyz_lh1 = mc.xform(lh,query=True,translation=True,worldSpace=True)
     if(abs(xyz_lh1[1]-xyz_lh0[1])<abs(xyz_lh1[2]-xyz_lh0[2])):
         mc.setAttr(la+'.rz',0)
