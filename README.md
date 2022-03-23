@@ -1,4 +1,4 @@
-# mmdpaimaya v3.0.3
+# mmdpaimaya v3.0.4
 
 MMDのモデルをMayaの中に読み込んだり、Mayaで作られたモデルをMMDモデルファイル(.pmx)に書き出したりするスクリプトです。
 
