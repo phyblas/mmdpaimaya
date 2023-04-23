@@ -5,7 +5,6 @@ from . import mmdio
 import maya.cmds as mc
 import maya.api.OpenMaya as om
 import maya.api.OpenMayaAnim as oma
-import pymel.core as pm
 f_riang_namnak = lambda x:x[1]
 
 def sang(chue_tem_file,satsuan_ok=1,chai_kraduk=True,chai_bs=True,chai_watsadu=True,lok_tex=False,thangmot=False):
@@ -47,7 +46,7 @@ def sang(chue_tem_file,satsuan_ok=1,chai_kraduk=True,chai_bs=True,chai_watsadu=T
         if(chai_kraduk):
             for chue_nod_skin in mc.ls(typ='skinCluster'): # このポリゴンに使うスキンのノード
                 # このスキンのノードに接続されているシェープのノードは、このホリゴンのシェープのノードに接続していれば、このスキンを使う
-                if(pm.PyNode(chue_nod_shp).name() in mc.skinCluster(chue_nod_skin,query=True,geometry=True)):
+                if(mc.ls(chue_nod_shp)[0] in mc.skinCluster(chue_nod_skin,query=True,geometry=True)):
                     lis_chue_nod_skin.append(chue_nod_skin)
                     break
             # このポリゴンと接続されているスキンがない場合
@@ -63,7 +62,7 @@ def sang(chue_tem_file,satsuan_ok=1,chai_kraduk=True,chai_bs=True,chai_watsadu=T
                 continue
             # 使用するスキンのノードと接続されているかどうか
             for chue_nod_skin in lis_chue_nod_skin:
-                if(chue_nod_skin and k in [pm.PyNode(x).fullPath() for x in mc.skinCluster(chue_nod_skin,query=True,influence=True)]):
+                if(chue_nod_skin and k in [mc.ls(x,long=True)[0] for x in mc.skinCluster(chue_nod_skin,query=True,influence=True)]):
                     break
             # 接続されていない場合、このジョイントはスキップ
             else:
@@ -85,7 +84,7 @@ def sang(chue_tem_file,satsuan_ok=1,chai_kraduk=True,chai_bs=True,chai_watsadu=T
             # その親がすでに作られた場合、スキップする
             if(parent in dic_chue_nod_kho):
                 continue
-            # まだないければ、このジョイントを子ジョイントと共に新しく追加する
+            # まだないなら、このジョイントを子ジョイントと共に新しく追加する
             lis_child = mc.listRelatives(parent,allDescendents=True,fullPath=True)
             lis_cp = [parent] # 親と全ての子のジョイントを収めるリスト
             if(lis_child):
@@ -106,18 +105,17 @@ def sang(chue_tem_file,satsuan_ok=1,chai_kraduk=True,chai_bs=True,chai_watsadu=T
                 bone.hasAdditionalLocation = False # 移動付与
                 bone.transAfterPhis = False # 物理後
                 
-                nod_kho = pm.PyNode(chue_nod_kho) # このジョイントのノード
                 p = mc.xform(chue_nod_kho,query=True,t=True,ws=True) # このジョイントの位置
                 bone.location = [p[0]*satsuan_ok,p[1]*satsuan_ok,-1*p[2]*satsuan_ok]
                 try:
-                    chue_parent = nod_kho.getParent().fullPath()
+                    chue_parent = mc.ls(mc.listRelatives(chue_nod_kho,parent=True),long=True)[0]
                     bone.parent = dic_chue_nod_kho[chue_parent]
                 except:
                     bone.parent = 0
                     bone.isMovable = True
-                child = nod_kho.getChildren()
-                if(len(child)==1):
-                    bone.displayConnection = dic_chue_nod_kho[child[0].fullPath()]
+                lis_child = mc.listRelatives(chue_nod_kho,children=True,fullPath=True)
+                if(lis_child and len(lis_child)==1):
+                    bone.displayConnection = dic_chue_nod_kho[lis_child[0]]
                 else:
                     bone.displayConnection = -1
     
@@ -143,7 +141,7 @@ def sang(chue_tem_file,satsuan_ok=1,chai_kraduk=True,chai_bs=True,chai_watsadu=T
                 model_bon_ap(bone)
     
                 # 子を持っているジョイントだけを表示枠に入れる
-                if(child):
+                if(lis_child):
                     model_dis2_ap((0,i_kho))
                 i_kho += 1
     
@@ -166,7 +164,7 @@ def sang(chue_tem_file,satsuan_ok=1,chai_kraduk=True,chai_bs=True,chai_watsadu=T
             if(chue_nod_skin):
                 dic_kho = {} # ジョイントの番号とジョイントの名前の辞書
                 for ii,chue_nod_kho in enumerate(mc.skinCluster(chue_nod_skin,query=True,influence=True)):
-                    dic_kho[ii] = dic_chue_nod_kho[pm.PyNode(chue_nod_kho).fullPath()]
+                    dic_kho[ii] = dic_chue_nod_kho[mc.ls(chue_nod_kho,long=True)[0]]
                 
                 # ジョイントとポリゴンの接続される重みを取得する
                 selelis = om.MSelectionList()
@@ -191,7 +189,7 @@ def sang(chue_tem_file,satsuan_ok=1,chai_kraduk=True,chai_bs=True,chai_watsadu=T
             lis_chue_nod_bs = []
             for chue_nod_bs in mc.ls(typ='blendShape'):
                 # これがこのブレンドシェープに接続しているポリゴンであるかどうかチェック
-                if(pm.PyNode(chue_nod_shp).name() not in mc.blendShape(chue_nod_bs,query=True,geometry=True)):
+                if(mc.ls(chue_nod_shp)[0] not in mc.blendShape(chue_nod_bs,query=True,geometry=True)):
                     continue # 違ったらスキップ
                 try:
                     ww = mc.getAttr(chue_nod_bs+'.w[*]') # 元の重みを収めておく

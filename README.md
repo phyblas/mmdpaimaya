@@ -1,4 +1,4 @@
-# mmdpaimaya v3.0.4
+# mmdpaimaya v3.1
 
 MMDのモデルをMayaの中に読み込んだり、Mayaで作られたモデルをMMDモデルファイル(.pmx)に書き出したりするスクリプトです。
 
@@ -6,8 +6,8 @@ MMDのモデルをMayaの中に読み込んだり、Mayaで作られたモデル
 
 使う時にmmdpaimayaのフォルダをMayaスクリプトフォルダに置きます。
 
-今のところはMaya2022以降のpython3でしか使用できません。
+使用できるバージョンはMaya2022-2024。
 
-Maya2015-2018の場合、旧バージョンを使ってください。
+Maya2015-2018に使う場合、v2.0.2を使ってください。
 
 ![](https://phyblas.hinaboshi.com/rup/yami/2018/a04.jpg)
