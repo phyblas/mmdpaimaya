@@ -28,7 +28,7 @@ def sang(chue_tem_file,satsuan=1,yaek_poly=False,ao_bs=True,ao_kraduk=True,watsa
     
     chue_nod_model = romaji(pmx_model.name) # モデルの名前をロマジに変換してモデルのノードの名前にする
     if(not chue_nod_model or set(chue_nod_model)=={'_'}):
-        chue_nod_model = os.path.basename(chue_tem_file).split('.')[1]
+        chue_nod_model = romaji(os.path.basename(chue_tem_file).split('.')[0])
     lis_chue_nod_kho_nok = [] # 一番外のジョイントのノードの名前を収めるリスト
     chue_nod_skin = None
     chue_nod_bs = None
