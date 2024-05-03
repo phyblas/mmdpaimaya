@@ -1,15 +1,24 @@
 # -*- coding: utf-8 -*-
 '''
-PySide2で書いたGUI
+PySideによるGUI
 '''
 
 import os,re
-from PySide2.QtWidgets import QWidget \
-    , QLabel, QLineEdit, QComboBox \
-    , QPushButton, QCheckBox, QButtonGroup, QRadioButton \
-    , QHBoxLayout, QVBoxLayout, QScrollArea \
-    , QFileDialog, QMessageBox
-from PySide2.QtCore import Qt
+try:
+    from PySide6.QtWidgets import QWidget \
+        , QLabel, QLineEdit, QComboBox \
+        , QPushButton, QCheckBox, QButtonGroup, QRadioButton \
+        , QHBoxLayout, QVBoxLayout, QScrollArea \
+        , QFileDialog, QMessageBox
+    from PySide6.QtCore import Qt
+except:
+    from PySide2.QtWidgets import QWidget \
+        , QLabel, QLineEdit, QComboBox \
+        , QPushButton, QCheckBox, QButtonGroup, QRadioButton \
+        , QHBoxLayout, QVBoxLayout, QScrollArea \
+        , QFileDialog, QMessageBox
+    from PySide2.QtCore import Qt
+    
 import maya.cmds as mc
 from maya import mel
 from . import pmxpaimaya,mayapaipmx
