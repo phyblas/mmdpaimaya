@@ -68,7 +68,7 @@ class Natanglak(QWidget):
 
     def keyPressEvent(self,e):
         if(e.key()==Qt.Key_Escape):
-            self.close()
+            self.close() # escを押したら閉じる
 
     def closeEvent(self,e):
         for na in self.natangyoi:
@@ -231,7 +231,7 @@ class Natang_mmdmaya(QWidget):
 
     def keyPressEvent(self,e): # escが押されたら閉じる
         if(e.key()==Qt.Key_Escape):
-            self.close()
+            self.close() # escを押したら閉じる
 
     def closeEvent(self,e):
         self.parent.natangyoi['mmdmaya'] = None
@@ -283,6 +283,7 @@ class Natang_humanik(QWidget):
         chue_nod_kho_nok = None
         chue_nod_poly = self.cbb_poly.currentText()
         if(mc.objExists(chue_nod_poly)):
+            # 全ての親のノードを探す
             if(mc.objExists(chue_nod_poly+'_sentaa')):
                 chue_nod_kho_nok = chue_nod_poly+'_sentaa'
             elif(mc.objExists(chue_nod_poly+'_subetenooya')):
@@ -309,31 +310,40 @@ class Natang_humanik(QWidget):
             lb = QLabel(dic_hik[lek][0])
             hbl.addWidget(lb)
             lb.setFixedWidth(80)
+            # 該当な名前のノードが見つけるまで繰り返す
             for chue_nod_kho in lis_chue_nod_kho:
                 khonha = re.findall(r'\|%s$'%dic_hik[lek][1],chue_nod_kho)
-                if(khonha):
+                if(khonha): # 該当な名前のノードを見つけた
                     dic_chue[lek] = chue_nod_kho
-                    mel.eval('hikSetCharacterObject %s %s %d 0'%(chue_nod_kho,chue_nod_hik,lek))
-
-                    btn = QPushButton('選択')
-                    hbl.addWidget(btn)
-                    btn.setFixedSize(50,30)
-
-                    le = QLineEdit(chue_nod_kho)
-                    hbl.addWidget(le)
-                    btn.clicked.connect((lambda x: (lambda: mc.select(x.text())))(le))
-                    le.setFixedWidth(400)
-                    le.setStyleSheet('font-size: 12px; color: #ffe;')
                     break
-            else:
+            else: # 該当な名前のノードが見つからない場合、指のノードだけの対策
+                if(lek>=51 and lek not in range(54,94,4)):
+                    lis_chue_nod_plai = mc.listRelatives(dic_chue[lek-1],fullPath=True)
+                    if(lis_chue_nod_plai and len(lis_chue_nod_plai)==1):
+                        chue_nod_plai = lis_chue_nod_plai[0]
+                        dic_chue[lek] = chue_nod_plai
+            
+            if(lek in dic_chue): # ノードわ見つけた場合
+                mel.eval('hikSetCharacterObject %s %s %d 0'%(dic_chue[lek],chue_nod_hik,lek))
+
+                btn = QPushButton('選択') # 押したらそのノードが選択されるというボタン
+                hbl.addWidget(btn)
+                btn.setFixedSize(50,30)
+
+                le = QLineEdit(dic_chue[lek]) # ノードの名前を表示
+                hbl.addWidget(le)
+                btn.clicked.connect((lambda x: (lambda: mc.select(x.text())))(le))
+                le.setFixedWidth(400)
+                le.setStyleSheet('font-size: 12px; color: #ffe;')
+            else: # ノードが見つからなかった場合
                 lb = QLabel('見つかりません')
                 hbl.addWidget(lb)
                 lb.setFixedWidth(400)
                 lb.setStyleSheet('color: #fab;')
-
+            
             hbl.addStretch()
 
-        kangkhaen(dic_chue)
+        kangkhaen(dic_chue) # 手を広げる
         self.vbl.addStretch()
         self.btn_sang_hik.setEnabled(True)
 
@@ -343,7 +353,7 @@ class Natang_humanik(QWidget):
 
     def keyPressEvent(self,e):
         if(e.key()==Qt.Key_Escape):
-            self.close()
+            self.close() # escを押したら閉じる
 
     def closeEvent(self,e):
         self.parent.natangyoi['humanik'] = None
@@ -351,7 +361,7 @@ class Natang_humanik(QWidget):
 
 class Natang_mayammd(QWidget):
     '''
-    mayaからmmdモデルへエクスポートするためのウィンドウ
+    mayaからmmdモデルの.pmxファイルへエクスポートするためのウィンドウ
     '''
     def __init__(self,parent):
         QWidget.__init__(self)
@@ -499,7 +509,7 @@ class Natang_mayammd(QWidget):
 
     def keyPressEvent(self,e):
         if(e.key()==Qt.Key_Escape):
-            self.close()
+            self.close() # escを押したら閉じる
 
     def closeEvent(self,e):
         self.parent.natangyoi['mayammd'] = None
